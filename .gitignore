@@ -1,0 +1,16 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/BookStrore/.vs
+/BookStrore/Server/TestWebAPI/.vs
+/BookStrore/Server/TestWebAPI/Book.Service/bin/Debug/net6.0
+/BookStrore/Server/TestWebAPI/Book.Service/obj
+/BookStrore/Server/TestWebAPI/BookStore.Service/bin/Debug/net6.0
+/BookStrore/Server/TestWebAPI/BookStore.Service/obj
+/BookStrore/Server/TestWebAPI/Common/bin/Debug/net6.0
+/BookStrore/Server/TestWebAPI/Common/obj
+/BookStrore/Server/TestWebAPI/Test.Data/bin/Debug/net6.0
+/BookStrore/Server/TestWebAPI/Test.Data/obj
+/BookStrore/Server/TestWebAPI/TestWebAPI/bin/Debug/net6.0
+/BookStrore/Server/TestWebAPI/TestWebAPI/obj

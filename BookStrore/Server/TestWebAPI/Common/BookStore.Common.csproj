@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="DTOs\BookRequest\**" />
+    <Compile Remove="DTOs\RequestDetail\**" />
+    <EmbeddedResource Remove="DTOs\BookRequest\**" />
+    <EmbeddedResource Remove="DTOs\RequestDetail\**" />
+    <None Remove="DTOs\BookRequest\**" />
+    <None Remove="DTOs\RequestDetail\**" />
+  </ItemGroup>
+
+</Project>
