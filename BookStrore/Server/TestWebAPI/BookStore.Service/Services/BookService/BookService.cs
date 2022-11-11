@@ -85,7 +85,7 @@ namespace BookStore.API.Services.BookService
             {
                 var countUserRequest = (await _bookRequestRepository.GetAllAsync(b => b.UserRquestId == createBookBorrowingRequest.UserRequestId));
 
-                
+
 
                 var newBookBorrowingRequest = new BookBorrowingRequest
                 {
@@ -282,7 +282,7 @@ namespace BookStore.API.Services.BookService
             }
         }
 
-        public async Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(Guid userApproveId ,UpdateBorrowingRequest updateBorrowingRequest)
+        public async Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(Guid userApproveId, UpdateBorrowingRequest updateBorrowingRequest)
         {
             using (var transaction = _bookRepository.DatabaseTransaction())
             {

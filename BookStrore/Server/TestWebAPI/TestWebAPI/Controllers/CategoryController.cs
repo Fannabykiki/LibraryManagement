@@ -17,38 +17,94 @@ namespace Book.API.Controllers
         }
 
         [HttpGet("categories")]
-        public async Task<IEnumerable<Category>> GetAsync()
+        public async Task<IActionResult> GetAsync()
         {
-            return await _categoryService.GetAllAsync();
+            try
+            {
+                var result = await _categoryService.GetAllAsync();
+                if (result == null) return StatusCode(500);
+
+                return Ok(result);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
         }
 
         [HttpGet("categories/{id}")]
-        public async Task<ActionResult<CategoryViewModel>> GetCategoryById(int id)
+        public async Task<IActionResult> GetCategoryById(int id)
         {
-            return  await _categoryService.GetCategoryByIdAsync(id);
+            try
+            {
+                var result = await _categoryService.GetCategoryByIdAsync(id);
+                if (result == null) return StatusCode(500);
+
+                return Ok(result);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
         }
 
         [HttpPost("categories")]
-        public async Task<ActionResult<AddCategoryResponse>> Add([FromBody] AddCategoryRequest addCategoryRequest)
+        public async Task<IActionResult> Add([FromBody] AddCategoryRequest addCategoryRequest)
         {
-            return await _categoryService.CreateAsync(addCategoryRequest);
+            try
+            {
+                var result = await _categoryService.CreateAsync(addCategoryRequest);
+                if (result == null) return StatusCode(500);
+
+                return Ok(result);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
         }
 
         [HttpDelete("categories/{id}")]
-        public async Task<bool> Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            return await _categoryService.DeleteAsync(id);
+            try
+            {
+                var result = await _categoryService.DeleteAsync(id);
+
+                if (!result)
+                {
+                    return StatusCode(400);
+                }
+
+                return Ok(result);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+
         }
         [HttpPut("categories")]
-        public async Task<bool> Update([FromBody] UpdateCategoryRequest updateCategoryRequest)
+        public async Task<IActionResult> Update([FromBody] UpdateCategoryRequest updateCategoryRequest)
         {
-            return await  _categoryService.UpdateAsync(updateCategoryRequest);
-        }
+            try
+            {
+                var result = await _categoryService.UpdateAsync(updateCategoryRequest);
+                if (result == null) return StatusCode(500);
 
-        //[HttpGet("categories-details/{id}")]
-        //public async Task<BookCategoryDetail> GetBooksByCategoryId(int id)
-        //{
-        //    return await _categoryService.GetBookByCategoryIdAsync(id);
-        //}
+                return Ok(result);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+        }
     }
+
+    //[HttpGet("categories-details/{id}")]
+    //public async Task<BookCategoryDetail> GetBooksByCategoryId(int id)
+    //{
+    //    return await _categoryService.GetBookByCategoryIdAsync(id);
+    //}
 }
+

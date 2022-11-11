@@ -2,6 +2,7 @@
 using BookStore.Data.Entities;
 using BookStore.API.DTOs.Category;
 using BookStore.API.Services.CategoryService;
+using BookStore.Common.DTOs.Category;
 
 namespace BookStore.Services.CategoryService
 {
@@ -100,7 +101,7 @@ namespace BookStore.Services.CategoryService
                 }
         }
 
-        public async Task<bool> UpdateAsync(UpdateCategoryRequest updateCategoryRequest)
+        public async Task<UpdateCategoryResponse> UpdateAsync(UpdateCategoryRequest updateCategoryRequest)
         {
             using (var transaction = _categoryRepository.DatabaseTransaction())
                 try
@@ -117,13 +118,19 @@ namespace BookStore.Services.CategoryService
 
                     transaction.Commit();
 
-                    return false;
+                    return new UpdateCategoryResponse
+                    {
+                        IsSucced = true,
+                    };
                 }
                 catch (Exception)
                 {
                     transaction.RollBack();
 
-                    return false;
+                    return new UpdateCategoryResponse
+                    {
+                        IsSucced = true,
+                    };
                 }
         }
 
