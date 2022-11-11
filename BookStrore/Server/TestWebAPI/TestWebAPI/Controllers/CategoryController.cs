@@ -84,12 +84,12 @@ namespace Book.API.Controllers
             }
 
         }
-        [HttpPut("categories")]
-        public async Task<IActionResult> Update([FromBody] UpdateCategoryRequest updateCategoryRequest)
+        [HttpPut("categories/{id}")]
+        public async Task<IActionResult> Update([FromBody]int Id, UpdateCategoryRequest updateCategoryRequest)
         {
             try
             {
-                var result = await _categoryService.UpdateAsync(updateCategoryRequest);
+                var result = await _categoryService.UpdateAsync(Id, updateCategoryRequest);
                 if (result == null) return StatusCode(500);
 
                 return Ok(result);

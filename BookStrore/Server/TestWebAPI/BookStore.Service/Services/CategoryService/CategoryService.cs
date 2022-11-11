@@ -101,15 +101,15 @@ namespace BookStore.Services.CategoryService
                 }
         }
 
-        public async Task<UpdateCategoryResponse> UpdateAsync(UpdateCategoryRequest updateCategoryRequest)
+        public async Task<UpdateCategoryResponse> UpdateAsync(int Id,UpdateCategoryRequest updateCategoryRequest)
         {
             using (var transaction = _categoryRepository.DatabaseTransaction())
                 try
                 {
-                    var category = await _categoryRepository.GetAsync(s => s.CategoryId == updateCategoryRequest.CategoryId);
+                    var category = await _categoryRepository.GetAsync(s => s.CategoryId == Id);
                     if (category != null)
                     {
-                        category.CategoryId = updateCategoryRequest.CategoryId;
+                        category.CategoryId = Id;
                         category.CategoryName = updateCategoryRequest.CategoryName;
 
                         _categoryRepository.SaveChanges();

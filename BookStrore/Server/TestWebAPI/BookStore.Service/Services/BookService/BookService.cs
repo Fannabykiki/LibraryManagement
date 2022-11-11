@@ -224,12 +224,12 @@ namespace BookStore.API.Services.BookService
             return null;
         }
 
-        public async Task<UpdateBookResponse> UpdateAsync(UpdateBookRequest updateBookRequest)
+        public async Task<UpdateBookResponse> UpdateAsync(int id,UpdateBookRequest updateBookRequest)
         {
             using var transaction = _bookRepository.DatabaseTransaction();
             try
             {
-                var book = await _bookRepository.GetAsync(s => s.BookId == updateBookRequest.BookId);
+                var book = await _bookRepository.GetAsync(s => s.BookId == id);
                 if (book == null)
                 {
                     return new UpdateBookResponse
@@ -244,7 +244,7 @@ namespace BookStore.API.Services.BookService
 
                 _bookRepository.SaveChanges();
 
-                var bookCategories = await _detailRepository.GetAllAsync(s => s.BookId == updateBookRequest.BookId);
+                var bookCategories = await _detailRepository.GetAllAsync(s => s.BookId == id);
                 foreach (var item in bookCategories)
                 {
                     await _detailRepository.DeleteAsync(item);

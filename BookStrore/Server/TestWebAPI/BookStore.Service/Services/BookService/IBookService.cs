@@ -9,7 +9,7 @@ namespace BookStore.API.Services.BookService
     {
         Task<IEnumerable<Books>> GetAllBookAsync();
         Task<AddBookResponse> CreateAsync(AddBookRequest addBookRequest);
-        Task<UpdateBookResponse> UpdateAsync(UpdateBookRequest updateBookRequest);
+        Task<UpdateBookResponse> UpdateAsync(int id,UpdateBookRequest updateBookRequest);
         Task<bool> DeleteAsync(int id);
         Task<BookViewModel> GetBookByIdAsync(int id);
         Task<CreateBorrowingBookResponse> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest);

@@ -9,7 +9,7 @@ namespace BookStore.API.Services.CategoryService
     {
         Task<IEnumerable<Category>> GetAllAsync();
         Task<AddCategoryResponse> CreateAsync(AddCategoryRequest addCategoryRequest);
-        Task<UpdateCategoryResponse> UpdateAsync(UpdateCategoryRequest updateCategoryRequest);
+        Task<UpdateCategoryResponse> UpdateAsync(int Id, UpdateCategoryRequest updateCategoryRequest);
         Task<bool> DeleteAsync(int id);
         Task<CategoryViewModel> GetCategoryByIdAsync(int id);
         //Task<BookCategoryDetail> GetBookByCategoryIdAsync(int id);

@@ -84,12 +84,12 @@ namespace Book.API.Controllers
             }
         }
 
-        [HttpPut("books")]
-        public async Task<IActionResult> Update([FromBody] UpdateBookRequest updateBookRequest)
+        [HttpPut("books/{id}")]
+        public async Task<IActionResult> Update([FromBody] int id, UpdateBookRequest updateBookRequest)
         {
             try
             {
-                var result = await _bookService.UpdateAsync(updateBookRequest);
+                var result = await _bookService.UpdateAsync(id,updateBookRequest);
 
                 if (result == null) return StatusCode(500);
 
@@ -101,22 +101,22 @@ namespace Book.API.Controllers
             
         }
 
-        //[HttpGet("books/{id}")]
-        //public async Task<IActionResult> GetBookById(int id)
-        //{
-        //    try
-        //    {
-        //        var result = await _bookService.GetBookByIdAsync(id);
+        [HttpGet("books/{id}")]
+        public async Task<IActionResult> GetBookById(int id)
+        {
+            try
+            {
+                var result = await _bookService.GetBookByIdAsync(id);
 
-        //        if (result == null) return NotFound();
+                if (result == null) return NotFound();
 
-        //        return Ok(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500);
-        //    }          
-        //}
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500);
+            }
+        }
 
         [HttpPost("book-borrowing")]
         public async Task<IActionResult> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest)
@@ -138,7 +138,7 @@ namespace Book.API.Controllers
             return await _bookService.GetAllBookRequestAsync();
         }
 
-        [HttpPut("book-borrowing/{id}")]
+        [HttpPut("book-borrowing")]
         public async Task<IActionResult> UpdateBorrowingRequest(Guid userApproveId, UpdateBorrowingRequest updateBorrowingRequest)
         {
             var result = await _bookService.UpdateBorrowingRequestAsync(userApproveId,updateBorrowingRequest);
