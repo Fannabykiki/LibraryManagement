@@ -9,9 +9,9 @@ namespace Book.API.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly IBookRequestService _categoryService;
+        private readonly ICategoryService _categoryService;
 
-        public CategoryController(IBookRequestService categoryService)
+        public CategoryController(ICategoryService categoryService)
         {
             _categoryService = categoryService;
         }
@@ -45,10 +45,10 @@ namespace Book.API.Controllers
             return await  _categoryService.UpdateAsync(updateCategoryRequest);
         }
 
-        [HttpGet("categories-details/{id}")]
-        public async Task<IEnumerable<BookCategoryDetail>> GetBookByCategoryId(int id)
-        {
-            return await _categoryService.GetBookByCategoryIdAsync(id);
-        }
+        //[HttpGet("categories-details/{id}")]
+        //public async Task<BookCategoryDetail> GetBooksByCategoryId(int id)
+        //{
+        //    return await _categoryService.GetBookByCategoryIdAsync(id);
+        //}
     }
 }

@@ -7,7 +7,7 @@ namespace BookStore.Data.Repositories.Implements
     public class BaseRepository<T> : IBaseRepository<T> where T : class
     {
         private readonly DbSet<T> _dbSet;
-        private readonly BookStoreContext _context;
+        protected readonly BookStoreContext _context;
         public BaseRepository(BookStoreContext context)
         {
             _dbSet = context.Set<T>();
@@ -63,6 +63,5 @@ namespace BookStore.Data.Repositories.Implements
 
             return await Task.FromResult(result);
         }
-
     }
 }

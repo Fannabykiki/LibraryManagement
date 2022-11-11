@@ -2,19 +2,17 @@
 using BookStore.Data.Entities;
 using BookStore.API.DTOs.Category;
 using BookStore.API.Services.CategoryService;
-using BookStore.API.DTOs;
-using BookStore.Data.Repositories;
 
 namespace BookStore.Services.CategoryService
 {
-    public class CategoryService : IBookRequestService
+    public class CategoryService : ICategoryService
     {
-        private readonly IBookRepository _bookRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IBookCategoryDetail _detailRepository;
-        public CategoryService(ICategoryRepository categoryRepository)
+        public CategoryService(ICategoryRepository categoryRepository, IBookCategoryDetail detailRepository = null)
         {
             _categoryRepository = categoryRepository;
+            _detailRepository = detailRepository;
         }
 
         public async Task<AddCategoryResponse> CreateAsync(AddCategoryRequest addCategoryRequest)
@@ -46,21 +44,23 @@ namespace BookStore.Services.CategoryService
                 }
         }
 
-        public async Task<IEnumerable<BookCategoryDetail>> GetBookByCategoryIdAsync(int id)
+        public async Task<BookCategoryDetail> GetBooksByCategoryIdAsync(int id)
         {
-            using (var transaction = _categoryRepository.DatabaseTransaction())
+            using (var transaction = _detailRepository.DatabaseTransaction())
                 try
                 {
-                    var category = await _categoryRepository.GetAsync(c => c.CategoryId == id);
+                    var book = await _detailRepository.GetAsync(c => c.CategoryId == id);
 
-                    if (category == null)
+                    if (book == null)
                     {
                         return null;
                     }
 
-                    return null;
-
-                    _detailRepository.SaveChanges();
+                    return new BookCategoryDetail
+                    {
+                        BookId = book.BookId,
+                        CategoryId = id,
+                    };
 
                     transaction.Commit();
                 }
@@ -83,8 +83,6 @@ namespace BookStore.Services.CategoryService
                     {
                         return null;
                     }
-
-                    _categoryRepository.SaveChanges();
 
                     transaction.Commit();
 
@@ -112,6 +110,7 @@ namespace BookStore.Services.CategoryService
                     {
                         category.CategoryId = updateCategoryRequest.CategoryId;
                         category.CategoryName = updateCategoryRequest.CategoryName;
+
                         _categoryRepository.SaveChanges();
                     }
                     _categoryRepository.UpdateAsync(category);
@@ -137,6 +136,7 @@ namespace BookStore.Services.CategoryService
                     if (category != null)
                     {
                         _categoryRepository.DeleteAsync(category);
+
                         _categoryRepository.SaveChanges();
                     }
                     transaction.Commit();

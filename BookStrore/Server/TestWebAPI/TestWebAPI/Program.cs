@@ -17,10 +17,11 @@ builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IBookCategoryDetail, BookCategoryDetailsRepository>();
-builder.Services.AddScoped<IBookRequestService, CategoryService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IBookRequestRepository, BookRequestRepository>();
 builder.Services.AddScoped<IBorrowingDetailRepository, BorrowingDetailReposotory>();
+
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
     options.AddPolicy("CorsPolicy",

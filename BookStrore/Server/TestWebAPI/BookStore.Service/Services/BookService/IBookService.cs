@@ -1,7 +1,7 @@
 ﻿using BookStore.Data.Entities;
 using BookStore.API.DTOs;
 using BookStore.Common.DTOs.Book.BookBorrowingRequest;
-using BookStore.Common.DTOs.Book.BookRequest;
+using BookStore.Common.DTOs.Book;
 
 namespace BookStore.API.Services.BookService
 {
@@ -9,11 +9,12 @@ namespace BookStore.API.Services.BookService
     {
         Task<IEnumerable<Books>> GetAllBookAsync();
         Task<AddBookResponse> CreateAsync(AddBookRequest addBookRequest);
-        Task<bool> UpdateAsync(UpdateBookRequest updateBookRequest);
+        Task<UpdateBookResponse> UpdateAsync(UpdateBookRequest updateBookRequest);
         Task<bool> DeleteAsync(int id);
         Task<BookViewModel> GetBookByIdAsync(int id);
-        Task<CreateBookBorrowingResponse> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest);
+        Task<CreateBorrowingBookResponse> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest);
         Task<IEnumerable<BookBorrowingRequest>> GetAllBookRequestAsync();
-        Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(UpdateBorrowingRequest updateBorrowingRequest);
+        Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(Guid userApproveId,UpdateBorrowingRequest updateBorrowingRequest);
+        Task<GetBooksResponse> GetBooks(GetBooksRequest getBookRequest);
     }
 }

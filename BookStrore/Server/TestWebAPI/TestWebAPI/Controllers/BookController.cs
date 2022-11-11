@@ -1,6 +1,8 @@
 ﻿using BookStore.API.DTOs;
 using BookStore.API.Services.BookService;
+using BookStore.Common.DTOs.Book;
 using BookStore.Common.DTOs.Book.BookBorrowingRequest;
+using BookStore.Common.Enums;
 using BookStore.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,8 +31,24 @@ namespace Book.API.Controllers
             return await _bookService.GetAllBookAsync();
         }
 
+
+        [HttpGet("books/{id}/{categoryId}")]
+        public async Task<IActionResult> GetBooks(int id, int categoryId)
+        {
+            GetBooksRequest getBookRequest = new GetBooksRequest
+            {
+                CategoryId = categoryId,
+                BookId = id
+            };
+            GetBooksResponse result =  await _bookService.GetBooks(getBookRequest);
+            
+
+            return Ok(result); 
+
+        }
+
         [HttpPost("books")]
-        public async Task<ActionResult<AddBookResponse>> Create([FromBody] AddBookRequest addBook)
+        public async Task<IActionResult> Create([FromBody] AddBookRequest addBook)
         {
             try
             {
@@ -83,22 +101,22 @@ namespace Book.API.Controllers
             
         }
 
-        [HttpGet("books/{id}")]
-        public async Task<IActionResult> GetBookById(int id)
-        {
-            try
-            {
-                var result = await _bookService.GetBookByIdAsync(id);
+        //[HttpGet("books/{id}")]
+        //public async Task<IActionResult> GetBookById(int id)
+        //{
+        //    try
+        //    {
+        //        var result = await _bookService.GetBookByIdAsync(id);
 
-                if (result == null) return NotFound();
+        //        if (result == null) return NotFound();
 
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500);
-            }          
-        }
+        //        return Ok(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500);
+        //    }          
+        //}
 
         [HttpPost("book-borrowing")]
         public async Task<IActionResult> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest)
@@ -121,9 +139,9 @@ namespace Book.API.Controllers
         }
 
         [HttpPut("book-borrowing/{id}")]
-        public async Task<IActionResult> UpdateBorrowingRequest(UpdateBorrowingRequest updateBorrowingRequest)
+        public async Task<IActionResult> UpdateBorrowingRequest(Guid userApproveId, UpdateBorrowingRequest updateBorrowingRequest)
         {
-            var result = await _bookService.UpdateBorrowingRequestAsync(updateBorrowingRequest);
+            var result = await _bookService.UpdateBorrowingRequestAsync(userApproveId,updateBorrowingRequest);
 
             if (result.IsSucced)
             {

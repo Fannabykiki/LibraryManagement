@@ -1,8 +1,8 @@
-﻿
+﻿using BookStore.Common.DTOs.Base;
 
 namespace BookStore.API.DTOs
 {
-    public class AddBookResponse
+    public class AddBookResponse : BaseResponse
     {
         public int BookId { get; set; }
         public string BookName { get; set; }
