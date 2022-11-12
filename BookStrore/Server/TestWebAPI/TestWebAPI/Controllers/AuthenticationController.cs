@@ -1,5 +1,6 @@
 ﻿using BookStore.API.DTOs.User;
 using BookStore.API.Services.UserService;
+using BookStore.Service.Services.Loggerservice;
 using Common.Jwt;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,10 +17,12 @@ namespace BookStore.API.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
+        private readonly ILoggerManager _logger;
         private readonly IUsersService _usersService;
-        public AuthenticationController(IUsersService usersService)
+        public AuthenticationController(IUsersService usersService, ILoggerManager logger)
         {
             _usersService = usersService;
+            _logger = logger;
         }
         [HttpPost("token")]
         public async Task<IActionResult> Login(LoginRequest request)

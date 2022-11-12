@@ -9,12 +9,12 @@ namespace BookStore.API.Services.BookService
     {
         Task<IEnumerable<Books>> GetAllBookAsync();
         Task<AddBookResponse> CreateAsync(AddBookRequest addBookRequest);
-        Task<UpdateBookResponse> UpdateAsync(int id,UpdateBookRequest updateBookRequest);
+        Task<UpdateBookResponse> UpdateAsync(int id, UpdateBookRequest updateBookRequest);
         Task<bool> DeleteAsync(int id);
         Task<BookViewModel> GetBookByIdAsync(int id);
-        Task<CreateBorrowingBookResponse> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest);
+        Task<CreateBorrowingBookResponse> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest,User user);
         Task<IEnumerable<BookBorrowingRequest>> GetAllBookRequestAsync();
-        Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(Guid userApproveId,UpdateBorrowingRequest updateBorrowingRequest);
+        Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(Guid userApproveId, UpdateBorrowingRequest updateBorrowingRequest);
         Task<GetBooksResponse> GetBooks(GetBooksRequest getBookRequest);
     }
 }

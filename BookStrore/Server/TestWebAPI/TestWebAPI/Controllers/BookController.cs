@@ -1,13 +1,17 @@
 ﻿using BookStore.API.DTOs;
 using BookStore.API.Services.BookService;
+using BookStore.API.Services.UserService;
 using BookStore.Common.DTOs.Book;
 using BookStore.Common.DTOs.Book.BookBorrowingRequest;
 using BookStore.Common.Enums;
 using BookStore.Data.Entities;
+using BookStore.Data.Repositories.Interfaces;
+using BookStore.Extensions;
 using BookStore.Service.Services.Loggerservice;
 using Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using BookStore.Extensions;
 
 namespace Book.API.Controllers
 {
@@ -18,19 +22,22 @@ namespace Book.API.Controllers
     {
         private readonly ILoggerManager _logger;
         private readonly IBookService _bookService;
+        private readonly IUsersService _usersService;
+
         public BookController(IBookService bookService, ILoggerManager logger)
         {
             _bookService = bookService;
             _logger = logger;
         }
-        [Authorize(Roles = UserRoles.SuperUser)]
+
+        [Authorize(Roles = UserRoles.NormalUser)]
         [HttpGet("books")]
         public async Task<IActionResult> GetAllBook()
         {
-                var result = await _bookService.GetAllBookAsync();
-                if (result == null) return StatusCode(500);
+            var result = await _bookService.GetAllBookAsync();
+            if (result == null) return StatusCode(500);
 
-                return Ok(result);
+            return Ok(result);
         }
 
 
@@ -50,24 +57,24 @@ namespace Book.API.Controllers
         [HttpPost("books")]
         public async Task<IActionResult> Create([FromBody] AddBookRequest addBook)
         {
-                var result = await _bookService.CreateAsync(addBook);
+            var result = await _bookService.CreateAsync(addBook);
 
-                if (result == null) return StatusCode(500);
+            if (result == null) return StatusCode(500);
 
-                return Ok(result);
+            return Ok(result);
         }
 
         [HttpDelete("books/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-                var result = await _bookService.DeleteAsync(id);
+            var result = await _bookService.DeleteAsync(id);
 
-                if (!result)
-                {
-                    return StatusCode(400);
-                }
+            if (!result)
+            {
+                return StatusCode(400);
+            }
 
-                return Ok();
+            return Ok();
         }
 
         [HttpPut("books/{id}")]
@@ -83,23 +90,36 @@ namespace Book.API.Controllers
         [HttpGet("books/{id}")]
         public async Task<IActionResult> GetBookById(int id)
         {
-                var result = await _bookService.GetBookByIdAsync(id);
+            var result = await _bookService.GetBookByIdAsync(id);
 
-                if (result == null) return NotFound();
+            if (result == null) return NotFound();
 
-                return Ok(result);
+            return Ok(result);
         }
 
+        [Authorize(Roles = UserRoles.NormalUser)]
         [HttpPost("book-borrowing")]
         public async Task<IActionResult> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest)
         {
-            var result = await _bookService.CreateBookBorrowing(createBookBorrowingRequest);
-
-            if (result.IsSucced)
+            var userId = this.GetCurrentLoginUserId();
+            if(userId == null)
             {
-                return Ok(result);
+                return NotFound();
             }
-            return StatusCode(500);
+            if (userId != null)
+            {
+                var user = await _usersService.GetUserByIdAsync(userId.Value);
+                if (user != null)
+                {
+                    var bookBorrowingRequest = await _bookService.CreateBookBorrowing(createBookBorrowingRequest, user);
+
+                    return bookBorrowingRequest != null ? Ok(bookBorrowingRequest) : BadRequest();
+                }
+                else
+                    return BadRequest();
+            }
+            else
+                return BadRequest();
         }
         [HttpGet("book-borrowing")]
         public async Task<IEnumerable<BookBorrowingRequest>> GetAllBookRequest()

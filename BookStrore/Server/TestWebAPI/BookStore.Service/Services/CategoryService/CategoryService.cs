@@ -15,7 +15,6 @@ namespace BookStore.Services.CategoryService
             _categoryRepository = categoryRepository;
             _detailRepository = detailRepository;
         }
-
         public async Task<AddCategoryResponse> CreateAsync(AddCategoryRequest addCategoryRequest)
         {
             using (var transaction = _categoryRepository.DatabaseTransaction())

@@ -1,7 +1,8 @@
-﻿using BookStore.Service.Services.Loggerservice;
+﻿using BookStore.Common.Middleware;
+using BookStore.Service.Services.Loggerservice;
 using Microsoft.AspNetCore.Diagnostics;
 using System.Net;
-namespace BookStore.Common.Middleware
+namespace BookStore.API.Extensions
 {
     public static class ExceptionMiddlewareExtensions
     {

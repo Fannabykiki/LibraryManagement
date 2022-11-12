@@ -1,5 +1,5 @@
 import ValidatedLoginForm from "./ValidatedLoginForm";
 function LoginPages() {
-  <ValidatedLoginForm />;
+    <ValidatedLoginForm />
 }
 export default LoginPages;

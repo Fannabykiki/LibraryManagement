@@ -1,17 +1,13 @@
 import './App.css';
-import { Routes, Route } from "react-router-dom"
-import LoginPages from './pages/login'; 
+// import { Routes, Route } from "react-router-dom"
+
 function App() {
   return (
-    <div className="App">
-
-      <LoginPages></LoginPages>
-      {/* <Routes>
-        <Route path="login" element={ <LoginPages/> } />
-      </Routes> */}
-      
-    </div>
-  );
+  
+      <div className="App">
+        <h1>Validated Login Form</h1>
+      </div>
+    );
 }
 
 export default App;

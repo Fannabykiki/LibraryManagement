@@ -3,10 +3,10 @@ using BookStore.Data.Entities;
 using BookStore.API.DTOs;
 using BookStore.Common.DTOs.Book.BookBorrowingRequest;
 using BookStore.Common.DTOs.Book;
+using BookStore.Data.Repositories.Implements;
 
 namespace BookStore.API.Services.BookService
 {
-
     public class BookService : IBookService
     {
         private readonly IBookRepository _bookRepository;
@@ -14,6 +14,8 @@ namespace BookStore.API.Services.BookService
         private readonly IBookCategoryDetail _detailRepository;
         private readonly IBookRequestRepository _bookRequestRepository;
         private readonly IBorrowingDetailRepository _borrowingDetailRepository;
+        private readonly IUserRepository _userRepository;
+
         public BookService(IBookRepository bookRepository, ICategoryRepository categoryRepository, IBookCategoryDetail bookCategoryDetail, IBookRequestRepository bookRequestRepository, IBorrowingDetailRepository borrowingDetailRepository)
         {
             _bookRepository = bookRepository;
@@ -78,19 +80,23 @@ namespace BookStore.API.Services.BookService
             }
         }
 
-        public async Task<CreateBorrowingBookResponse> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest)
+        public async Task<CreateBorrowingBookResponse> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest,User user)
         {
             using var transaction = _bookRequestRepository.DatabaseTransaction();
             try
             {
-                var countUserRequest = (await _bookRequestRepository.GetAllAsync(b => b.UserRquestId == createBookBorrowingRequest.UserRequestId));
-
-
+                var userModel = new User
+                {
+                    UserId = user.UserId,
+                    Role = user.Role
+                };
+                var userId = _userRepository.CreateAsync(userModel);
+                _userRepository.SaveChanges();
 
                 var newBookBorrowingRequest = new BookBorrowingRequest
                 {
-                    UserRquestId = createBookBorrowingRequest.UserRequestId,
-                    RequestDate = createBookBorrowingRequest.RequestDate,
+                    UserRquestId = user.UserId,
+                    RequestDate = DateTime.UtcNow,
                     Status = Common.Enums.RequestStatusEnum.Pending
                 };
 
@@ -153,6 +159,7 @@ namespace BookStore.API.Services.BookService
                     return false;
                 }
         }
+
         public async Task<IEnumerable<Books>> GetAllBookAsync()
         {
             return await _bookRepository.GetAllAsync(x => true);
@@ -224,7 +231,7 @@ namespace BookStore.API.Services.BookService
             return null;
         }
 
-        public async Task<UpdateBookResponse> UpdateAsync(int id,UpdateBookRequest updateBookRequest)
+        public async Task<UpdateBookResponse> UpdateAsync(int id, UpdateBookRequest updateBookRequest)
         {
             using var transaction = _bookRepository.DatabaseTransaction();
             try
