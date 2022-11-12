@@ -3,7 +3,7 @@ using BookStore.Data.Entities;
 using BookStore.API.DTOs;
 using BookStore.Common.DTOs.Book.BookBorrowingRequest;
 using BookStore.Common.DTOs.Book;
-using BookStore.Data.Repositories.Implements;
+using BookStore.Common.DTOs.Book.BorrowingRequestDetail;
 
 namespace BookStore.API.Services.BookService
 {
@@ -80,19 +80,11 @@ namespace BookStore.API.Services.BookService
             }
         }
 
-        public async Task<CreateBorrowingBookResponse> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest,User user)
+        public async Task<CreateBorrowingBookResponse> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest, User user)
         {
             using var transaction = _bookRequestRepository.DatabaseTransaction();
             try
             {
-                var userModel = new User
-                {
-                    UserId = user.UserId,
-                    Role = user.Role
-                };
-                var userId = _userRepository.CreateAsync(userModel);
-                _userRepository.SaveChanges();
-
                 var newBookBorrowingRequest = new BookBorrowingRequest
                 {
                     UserRquestId = user.UserId,
@@ -117,6 +109,7 @@ namespace BookStore.API.Services.BookService
                 }
 
                 transaction.Commit();
+
                 return new CreateBorrowingBookResponse
                 {
                     IsSucced = true,
@@ -197,39 +190,96 @@ namespace BookStore.API.Services.BookService
                 }
         }
 
-        public async Task<GetBooksResponse> GetBooks(GetBooksRequest getBookRequest)
+        public async Task<BorrowingDetailResponse> GetBorrowingDetailByRequestIdAsync(int id)
         {
-            //using (var transaction = _bookRepository.DatabaseTransaction())
-            //    try
-            //    {
-            //        var books = await _bookRepository.GetAllAsync(x => (getBookRequest.BookId == 0 || x.BookId == getBookRequest.BookId));
-            //        if (books == null)
-            //        {
-            //            return new GetBooksResponse
-            //            {
-            //                IsSucced = false
-            //            };
-            //        }
+            using (var transaction = _borrowingDetailRepository.DatabaseTransaction())
+                try
+                {
+                    var result = await _borrowingDetailRepository.GetAllAsync(c => c.BookBorrowingRequestId == id);
+                    if (result == null)
+                    {
+                        return new BorrowingDetailResponse
+                        {
+                            IsSucced = false
+                        };
+                    }
+                    foreach (var item in result)
+                    {
+                        return new BorrowingDetailResponse
+                        {
+                            BookId = item.BookId,
+                            RequestId = id
+                        };
+                    }
+                    return new BorrowingDetailResponse
+                    {
+                        IsSucced = true
+                    };
+                }
+                catch
+                {
+                    transaction.RollBack();
 
-            //        var getBookResponse = new GetBooksResponse
-            //        {
-            //            BookViewModels = books.,
-            //        };
-            //        foreach (var book in books)
-            //        {
-            //            var bookCategoryDetailIds = (await _detailRepository.GetAllAsync(x => x.BookId == book.BookId))
-            //                                                                .Select(x => x.CategoryId);
-            //            var categories = await _categoryRepository.GetAllAsync(x => bookCategoryDetailIds.Contains(x.CategoryId));
-
-            //        }
-
-            //    }
-            //    catch (Exception ex)
-            //    {
-
-            //    }
-            return null;
+                    return null;
+                }
         }
+
+        //public async task<getbooksresponse> getbooks(getbooksrequest getbookrequest)
+        //{
+        //    using (var transaction = _bookrepository.databasetransaction())
+        //        try
+        //        {
+        //            var books = await _bookrepository.getallasync(x => (getbookrequest.bookid == 0 || x.bookid == getbookrequest.bookid));
+        //            if (books == null)
+        //            {
+        //                return new getbooksresponse
+        //                {
+        //                    issucced = false
+        //                };
+        //            }
+
+        //            var getbookresponse = new getbooksresponse
+        //            {
+        //                bookviewmodels = books.,
+        //            };
+        //            foreach (var book in books)
+        //            {
+        //                var bookcategorydetailids = (await _detailrepository.getallasync(x => x.bookid == book.bookid))
+        //                                                                    .select(x => x.categoryid);
+        //                var categories = await _categoryrepository.getallasync(x => bookcategorydetailids.contains(x.categoryid));
+
+        //            }
+
+        //        }
+        //        catch (exception ex)
+        //        {
+
+        //        }
+
+        //}
+
+        //public async Task<bool> IsLimit(int bookId,User user, BookBorrowingRequest bookBorrowingRequest)
+        //{
+        //    using var transaction = _bookRequestRepository.DatabaseTransaction();
+        //    try
+        //    {
+        //        var requestCount = await _bookRequestRepository.GetAllAsync(b => b.UserRquestId == user.UserId);
+        //        if (requestCount.Count() > 0 && requestCount.Count() <= 3) return true;
+        //        return false;
+
+        //        var bookRequest = (await _bookRequestRepository.GetAllAsync(b => b.UserRquestId == user.UserId)).Select(b => b.BookBorrowingRequestId);
+        //        //foreach (var item in bookRequest)
+        //        //{
+        //        //}
+        //        var bookCount = (await _borrowingDetailRepository.GetAllAsync(br => br.BookBorrowingRequestId == bookRequest.))
+
+        //    }
+
+        //    catch
+        //    {
+
+        //    }
+        //}
 
         public async Task<UpdateBookResponse> UpdateAsync(int id, UpdateBookRequest updateBookRequest)
         {
@@ -289,7 +339,7 @@ namespace BookStore.API.Services.BookService
             }
         }
 
-        public async Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(Guid userApproveId, UpdateBorrowingRequest updateBorrowingRequest)
+        public async Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(User user, UpdateBorrowingRequest updateBorrowingRequest)
         {
             using (var transaction = _bookRepository.DatabaseTransaction())
             {
@@ -305,7 +355,7 @@ namespace BookStore.API.Services.BookService
                     }
 
                     updateRequest.Status = updateBorrowingRequest.RequestStatus;
-                    updateRequest.UserApproveId = userApproveId;
+                    updateRequest.UserApproveId = user.UserId;
 
                     await _bookRequestRepository.UpdateAsync(updateRequest);
 
@@ -329,5 +379,6 @@ namespace BookStore.API.Services.BookService
                 }
             }
         }
+
     }
 }

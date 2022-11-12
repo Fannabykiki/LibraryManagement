@@ -2,6 +2,7 @@
 using BookStore.API.DTOs;
 using BookStore.Common.DTOs.Book.BookBorrowingRequest;
 using BookStore.Common.DTOs.Book;
+using BookStore.Common.DTOs.Book.BorrowingRequestDetail;
 
 namespace BookStore.API.Services.BookService
 {
@@ -14,7 +15,9 @@ namespace BookStore.API.Services.BookService
         Task<BookViewModel> GetBookByIdAsync(int id);
         Task<CreateBorrowingBookResponse> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest,User user);
         Task<IEnumerable<BookBorrowingRequest>> GetAllBookRequestAsync();
-        Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(Guid userApproveId, UpdateBorrowingRequest updateBorrowingRequest);
-        Task<GetBooksResponse> GetBooks(GetBooksRequest getBookRequest);
+        Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(User user, UpdateBorrowingRequest updateBorrowingRequest);
+        //Task<GetBooksResponse> GetBooks(GetBooksRequest getBookRequest);
+        Task<BorrowingDetailResponse> GetBorrowingDetailByRequestIdAsync(int id);
+        //Task<bool> IsLimit(User user,BookBorrowingRequest bookBorrowingRequest);
     }
 }
