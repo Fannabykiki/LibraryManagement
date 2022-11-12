@@ -11,6 +11,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using BookStore.API.Services.UserService;
 using BookStore.Data.Repositories.Implements;
+using BookStore.Common.Middleware;
+using BookStore.Service.Services.Loggerservice;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IBookService, BookService>();
@@ -61,6 +63,9 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+var logger = app.Services.GetRequiredService<ILoggerManager>();
+app.ConfigureExceptionHandler(logger);
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -68,11 +73,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
+
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
 app.UseAuthentication();
+
+app.UseAuthorization();
 
 app.MapControllers();
 

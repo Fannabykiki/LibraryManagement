@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NLog.Extensions.Logging" Version="5.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Common\BookStore.Common.csproj" />
     <ProjectReference Include="..\Test.Data\BookStore.Data.csproj" />
   </ItemGroup>
