@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../Components/Css/button.css";
 import axios from "axios";
-
 
 function CreateCategories() {
 
   const [category, setCategory] = useState({
-    name: "",
+    categoryName: "",
   });
 
   const navigate = useNavigate();
@@ -29,7 +27,7 @@ function CreateCategories() {
       method: "post",
       url: "https://localhost:7233/api/category-management/categories",
       data: {
-        categoryName :"",
+        categoryName :category.name,
       },
     })
       .then((response) => {
@@ -38,7 +36,7 @@ function CreateCategories() {
       .catch((error) => {
         console.log(error);
       });
-
+      
     setCategory({
       categoryName :"",
     });

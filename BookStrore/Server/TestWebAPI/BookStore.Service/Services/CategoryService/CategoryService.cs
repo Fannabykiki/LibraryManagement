@@ -147,7 +147,7 @@ namespace BookStore.Services.CategoryService
                     }
                     transaction.Commit();
 
-                    return false;
+                    return true;
                 }
                 catch (Exception)
                 {

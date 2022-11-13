@@ -220,67 +220,39 @@ namespace BookStore.API.Services.BookService
                 {
                     transaction.RollBack();
 
-                    return null;
+                    return new BorrowingDetailResponse
+                    {
+                        IsSucced = false
+                    };
                 }
         }
 
-        //public async task<getbooksresponse> getbooks(getbooksrequest getbookrequest)
-        //{
-        //    using (var transaction = _bookrepository.databasetransaction())
-        //        try
-        //        {
-        //            var books = await _bookrepository.getallasync(x => (getbookrequest.bookid == 0 || x.bookid == getbookrequest.bookid));
-        //            if (books == null)
-        //            {
-        //                return new getbooksresponse
-        //                {
-        //                    issucced = false
-        //                };
-        //            }
+        public async Task<IEnumerable<GetBookResponse>> GetRequestByUserId(User user)
+        {
+            var transaction = _bookRequestRepository.DatabaseTransaction();
+            try
+            {
+                var result = (await _bookRequestRepository.GetAllAsync(x => x.UserRquestId == user.UserId)).ToList();
+                if (result == null)
+                {
+                    return null;
+                }
 
-        //            var getbookresponse = new getbooksresponse
-        //            {
-        //                bookviewmodels = books.,
-        //            };
-        //            foreach (var book in books)
-        //            {
-        //                var bookcategorydetailids = (await _detailrepository.getallasync(x => x.bookid == book.bookid))
-        //                                                                    .select(x => x.categoryid);
-        //                var categories = await _categoryrepository.getallasync(x => bookcategorydetailids.contains(x.categoryid));
+                return result.Select(bookRequest => new GetBookResponse
+                {
+                    RequestDate = bookRequest.RequestDate,
+                    Status = bookRequest.Status,
+                    UserRquestId = user.UserId,
+                });
+            }
+            catch
+            {
+                transaction.RollBack();
 
-        //            }
+                return null;
+            }
 
-        //        }
-        //        catch (exception ex)
-        //        {
-
-        //        }
-
-        //}
-
-        //public async Task<bool> IsLimit(int bookId,User user, BookBorrowingRequest bookBorrowingRequest)
-        //{
-        //    using var transaction = _bookRequestRepository.DatabaseTransaction();
-        //    try
-        //    {
-        //        var requestCount = await _bookRequestRepository.GetAllAsync(b => b.UserRquestId == user.UserId);
-        //        if (requestCount.Count() > 0 && requestCount.Count() <= 3) return true;
-        //        return false;
-
-        //        var bookRequest = (await _bookRequestRepository.GetAllAsync(b => b.UserRquestId == user.UserId)).Select(b => b.BookBorrowingRequestId);
-        //        //foreach (var item in bookRequest)
-        //        //{
-        //        //}
-        //        var bookCount = (await _borrowingDetailRepository.GetAllAsync(br => br.BookBorrowingRequestId == bookRequest.))
-
-        //    }
-
-        //    catch
-        //    {
-
-        //    }
-        //}
-
+        }
         public async Task<UpdateBookResponse> UpdateAsync(int id, UpdateBookRequest updateBookRequest)
         {
             using var transaction = _bookRepository.DatabaseTransaction();
@@ -339,13 +311,13 @@ namespace BookStore.API.Services.BookService
             }
         }
 
-        public async Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(User user, UpdateBorrowingRequest updateBorrowingRequest)
+        public async Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(User user, UpdateBorrowingRequest updateBorrowingRequest, int id)
         {
             using (var transaction = _bookRepository.DatabaseTransaction())
             {
                 try
                 {
-                    var updateRequest = await _bookRequestRepository.GetAsync(s => s.BookBorrowingRequestId == updateBorrowingRequest.BorrowingId);
+                    var updateRequest = await _bookRequestRepository.GetAsync(s => s.BookBorrowingRequestId == id);
                     if (updateRequest == null)
                     {
                         return new UpdateBookBorrowingResponse

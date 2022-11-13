@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import { Select } from "antd";
 import { Option } from "antd/lib/mentions";
 
-function UpdateBook() {
+function UpdateCategory() {
   const navigate = useNavigate();
 
   const { id } = useParams();
@@ -15,7 +15,7 @@ function UpdateBook() {
   const [data, setData] = useState([]);
 
   const handleBackToList = () => {
-    navigate(`/book`);
+    navigate(`/category`);
   };
 
   const [book, setBook] = useState({
@@ -30,12 +30,6 @@ function UpdateBook() {
     });
   };
   
-  const handleChange2 = (value) => {
-    setBook({
-      ...book,
-      categoryIds: value,
-    });
-  };
 
   useEffect(() => {
     axios({
@@ -55,7 +49,7 @@ function UpdateBook() {
   useEffect(() => {
     axios({
       method: "GET",
-      url: `https://localhost:7233/api/book-management/books/${id}`,
+      url: `https://localhost:7233/api/category-management/categories/${id}`,
       data: null,
     })
       .then((response) => {
@@ -72,7 +66,7 @@ function UpdateBook() {
     evt.preventDefault();
     axios({
       method: "put",
-      url: `https://localhost:7233/api/book-management/books/${data.bookId}`,
+      url: `https://localhost:7233/api/category-management/categories/${data.bookId}`,
       data: {
         bookName: book.name,
         categoryIds: book.categoryIds,
@@ -88,11 +82,11 @@ function UpdateBook() {
   };
   return (
     <div>
-      <h1>Update book {book.name}:</h1>
-      <form onSubmit={handleOnSubmit}>
+      <h1>Update Category {category.name}:</h1>
+       <form onSubmit={handleOnSubmit}>
         <div>
           <label>
-            Book name:
+          Category name:
             <input
               type="text"
               onChange={handleChange}
@@ -100,27 +94,6 @@ function UpdateBook() {
               name="name"
               required
             ></input>
-          </label>
-        </div>
-
-        <div>
-          <label>
-            Category Id:
-            <Select name="categoryIds"
-              mode="multiple"
-              style={{
-                width: "100%",
-              }}
-              placeholder="select category"
-              onChange={handleChange2}
-              optionLabelProp="label"
-            >
-              {category.map((option) => ( <Option value={option.categoryId} label={option.categoryName}>
-                <div className="demo-option-label-item">
-                  {option.categoryId}
-                </div>
-              </Option>))}
-            </Select>
           </label>
         </div>
         <div>
@@ -136,8 +109,8 @@ function UpdateBook() {
             Back to Post Page
           </button>
         </div>
-      </form>
+      </form> 
     </div>
   );
 }
-export default UpdateBook;
+export default UpdateCategory;

@@ -8,14 +8,15 @@ import { useNavigate } from "react-router-dom";
 import React from "react";
 const { Column, ColumnGroup } = Table;
 
-
 function CategoryService() {
   const [categories, setCategories] = useState([]);
-
+  const handleAdd = ()=> {
+    navigate(`/addcategory`);
+  };
   const navigate = useNavigate();
 
   const handleUpdate = (id) => {
-    navigate(`/update/${id}`);
+    navigate(`/category/${id}`);
   };
 
   const handleDelete = (id) => {
@@ -47,19 +48,25 @@ function CategoryService() {
       })
       .catch((error) => console.log(error));
   }, []);
-  
+    
   return (
+    <>
+    <Button type="primary" onClick={handleAdd} >
+        Add
+      </Button>
     <Table dataSource={categories}>
-      <Column title="Category" dataIndex="categoryName" key="categoryName" />
+      <Column title="CategoryId" dataIndex="categoryId" key="categoryId" />
+      <Column title="CategoryName" dataIndex="categoryName" key="categoryName" />
       <Column
         title="Action"
         key="action"
         render={(_, record) => (
+           
           <Space size="middle">
              <Button type="text" dashed>
              <button
                     class="updateButton"
-                    onClick={() => handleUpdate(record.bookId)}
+                    onClick={() => handleUpdate(record.categoryId)}
                   >
                     Edit {record.firstName}
                   </button>
@@ -68,7 +75,7 @@ function CategoryService() {
                 <button
                     class="deleteButton"
                     value={record.bookId}
-                    onClick={() => handleDelete(record.bookId)}
+                    onClick={() => handleDelete(record.categoryId)}
                   >
                     Delete
                   </button>
@@ -77,6 +84,7 @@ function CategoryService() {
         )}
       />
     </Table>
+    </>
   );
 }
 

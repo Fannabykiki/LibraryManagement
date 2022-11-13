@@ -33,24 +33,11 @@ namespace Book.API.Controllers
         {
             var result = await _bookService.GetAllBookAsync();
             if (result == null) return StatusCode(500);
-
+            //throw new ArgumentNullException();
             return Ok(result);
         }
 
-        //[HttpGet("books/{id}/{categoryId}")]
-        //public async Task<IActionResult> GetBooks(int id, int categoryId)
-        //{
-        //    GetBooksRequest getBookRequest = new GetBooksRequest
-        //    {
-        //        CategoryId = categoryId,
-        //        BookId = id
-        //    };
-        //    GetBooksResponse result = await _bookService.GetBooks(getBookRequest);
-
-        //    return Ok(result);
-        //}
-
-        //[Authorize(Roles = UserRoles.SuperUser)]
+        [Authorize(Roles = UserRoles.SuperUser)]
         [AllowAnonymous]
         [HttpPost("books")]
         public async Task<IActionResult> Create([FromBody] AddBookRequest addBook)
@@ -63,7 +50,7 @@ namespace Book.API.Controllers
         }
 
         [HttpDelete("books/{id}")]
-        //[Authorize(Roles = UserRoles.SuperUser)]
+        [Authorize(Roles = UserRoles.SuperUser)]
         [AllowAnonymous]
         public async Task<IActionResult> Delete(int id)
         {
@@ -72,9 +59,8 @@ namespace Book.API.Controllers
             return Ok(result);
         }
 
-        [AllowAnonymous]
         [HttpPut("books/{id}")]
-        //[Authorize(Roles = UserRoles.SuperUser)]
+        [Authorize(Roles = UserRoles.SuperUser)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateBookRequest updateBookRequest)
         {
             var result = await _bookService.UpdateAsync(id, updateBookRequest);
@@ -120,6 +106,7 @@ namespace Book.API.Controllers
                 return BadRequest();
         }
 
+
         [Authorize(Roles = UserRoles.SuperUser)]
         [HttpGet("book-borrowing")]
         public async Task<IEnumerable<BookBorrowingRequest>> GetAllBookRequest()
@@ -128,8 +115,8 @@ namespace Book.API.Controllers
         }
 
         [Authorize(Roles = UserRoles.SuperUser)]
-        [HttpPut("book-borrowing")]
-        public async Task<IActionResult> UpdateBorrowingRequest(UpdateBorrowingRequest updateBorrowingRequest)
+        [HttpPut("book-borrowing/{id}")]
+        public async Task<IActionResult> UpdateBorrowingRequest(int id,UpdateBorrowingRequest updateBorrowingRequest)
         {
             var userId = this.GetCurrentLoginUserId();
             if (userId == null)
@@ -141,7 +128,7 @@ namespace Book.API.Controllers
                 var user = await _usersService.GetUserByIdAsync(userId.Value);
                 if (user != null)
                 {
-                    var bookBorrowingRequest = await _bookService.UpdateBorrowingRequestAsync(user, updateBorrowingRequest);
+                    var bookBorrowingRequest = await _bookService.UpdateBorrowingRequestAsync(user, updateBorrowingRequest,id);
 
                     return bookBorrowingRequest != null ? Ok(bookBorrowingRequest) : BadRequest();
                 }
@@ -160,6 +147,31 @@ namespace Book.API.Controllers
             if (result == null) return NotFound();
 
             return Ok(result);
+        }
+
+        [Authorize(Roles = UserRoles.SuperUser)]
+        [HttpGet("book-borrowingrequest")]
+        public async Task<IActionResult> GetRequestByUserId()
+        {
+            var userId = this.GetCurrentLoginUserId();  
+            if (userId == null)
+            {
+                return NotFound();
+            }
+            if (userId != null)
+            {
+                var user = await _usersService.GetUserByIdAsync(userId.Value);
+                if (user != null)
+                {
+                    var bookBorrowingRequest = await _bookService.GetRequestByUserId(user);
+
+                    return bookBorrowingRequest != null ? Ok(bookBorrowingRequest) : BadRequest();
+                }
+                else
+                    return BadRequest();
+            }
+            else
+                return BadRequest();
         }
     }
 }

@@ -1,21 +1,21 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Space, Table, Tag } from "antd";
-import { Button } from 'antd';
+import { Input, Modal, Select, Space, Table } from "antd";
+import { Button } from "antd";
 import { useNavigate } from "react-router-dom";
-
-
 import React from "react";
-const { Column, ColumnGroup } = Table;
-
+import Column from "antd/lib/table/Column";
 
 function BookService() {
-  const [books, setBooks] = useState([]);
+  const [book, setBook] = useState([]);
 
   const navigate = useNavigate();
 
   const handleUpdate = (id) => {
     navigate(`/update/${id}`);
+  };
+  const handleAdd = ()=> {
+    navigate(`/add`);
   };
 
   const handleDelete = (id) => {
@@ -42,42 +42,48 @@ function BookService() {
     axios
       .get(`https://localhost:7233/api/book-management/books`)
       .then((data) => {
-        setBooks(data.data);
+        setBook(data.data);
         console.log(data.data);
       })
       .catch((error) => console.log(error));
   }, []);
-  
+
   return (
-    <Table dataSource={books}>
-      <Column title="BookId" dataIndex="bookId" key="bookId" />
-      <Column title="BookName" dataIndex="bookName" key="bookName" />
-      <Column
-        title="Action"
-        key="action"
-        render={(_, record) => (
-          <Space size="middle">
-             <Button type="text" dashed>
-             <button
-                    class="updateButton"
-                    onClick={() => handleUpdate(record.bookId)}
-                  >
-                    Edit {record.firstName}
-                  </button>
-            </Button>
-            <Button type="text" danger>
+    <>
+       <Button type="primary" onClick={handleAdd} >
+        Add
+      </Button>
+
+      <Table dataSource={book}>
+        <Column title="BookId" dataIndex="bookId" key="bookId" />
+        <Column title="BookName" dataIndex="bookName" key="bookName" />
+        <Column
+          title="Action"
+          key="action"
+          render={(_, record) => (
+            <Space size="middle">
+              <Button type="text" dashed>
                 <button
-                    class="deleteButton"
-                    value={record.bookId}
-                    onClick={() => handleDelete(record.bookId)}
-                  >
-                    Delete
-                  </button>
-            </Button>
-          </Space>
-        )}
-      />
-    </Table>
+                  class="updateButton"
+                  onClick={() => handleUpdate(record.bookId)}
+                >
+                  Edit {record.firstName}
+                </button>
+              </Button>
+              <Button type="text" danger>
+                <button
+                  class="deleteButton"
+                  value={record.bookId}
+                  onClick={() => handleDelete(record.bookId)}
+                >
+                  Delete
+                </button>
+              </Button>
+            </Space>
+          )}
+        />
+      </Table>
+    </>
   );
 }
 

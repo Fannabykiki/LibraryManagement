@@ -15,9 +15,9 @@ namespace BookStore.API.Services.BookService
         Task<BookViewModel> GetBookByIdAsync(int id);
         Task<CreateBorrowingBookResponse> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest,User user);
         Task<IEnumerable<BookBorrowingRequest>> GetAllBookRequestAsync();
-        Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(User user, UpdateBorrowingRequest updateBorrowingRequest);
+        Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(User user, UpdateBorrowingRequest updateBorrowingRequest,int id);
         //Task<GetBooksResponse> GetBooks(GetBooksRequest getBookRequest);
         Task<BorrowingDetailResponse> GetBorrowingDetailByRequestIdAsync(int id);
-        //Task<bool> IsLimit(User user,BookBorrowingRequest bookBorrowingRequest);
+        Task<IEnumerable<GetBookResponse>> GetRequestByUserId(User user);
     }
 }

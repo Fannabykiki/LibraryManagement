@@ -12,6 +12,5 @@ namespace BookStore.API.Services.CategoryService
         Task<UpdateCategoryResponse> UpdateAsync(int Id, UpdateCategoryRequest updateCategoryRequest);
         Task<bool> DeleteAsync(int id);
         Task<CategoryViewModel> GetCategoryByIdAsync(int id);
-        //Task<BookCategoryDetail> GetBookByCategoryIdAsync(int id);
     }
 }
