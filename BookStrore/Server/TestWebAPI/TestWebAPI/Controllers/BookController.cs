@@ -1,18 +1,13 @@
 ﻿using BookStore.API.DTOs;
 using BookStore.API.Services.BookService;
 using BookStore.API.Services.UserService;
-using BookStore.Common.DTOs.Book;
 using BookStore.Common.DTOs.Book.BookBorrowingRequest;
-using BookStore.Common.Enums;
 using BookStore.Data.Entities;
-using BookStore.Data.Repositories.Interfaces;
 using BookStore.Extensions;
 using BookStore.Service.Services.Loggerservice;
 using Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using BookStore.Extensions;
-using BookStore.Common.DTOs.Book.BorrowingRequestDetail;
 
 namespace Book.API.Controllers
 {
@@ -55,7 +50,8 @@ namespace Book.API.Controllers
         //    return Ok(result);
         //}
 
-        [Authorize(Roles = UserRoles.SuperUser)]
+        //[Authorize(Roles = UserRoles.SuperUser)]
+        [AllowAnonymous]
         [HttpPost("books")]
         public async Task<IActionResult> Create([FromBody] AddBookRequest addBook)
         {
@@ -67,21 +63,18 @@ namespace Book.API.Controllers
         }
 
         [HttpDelete("books/{id}")]
-        [Authorize(Roles = UserRoles.SuperUser)]
+        //[Authorize(Roles = UserRoles.SuperUser)]
+        [AllowAnonymous]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _bookService.DeleteAsync(id);
 
-            if (!result)
-            {
-                return StatusCode(400);
-            }
-
-            return Ok();
+            return Ok(result);
         }
 
+        [AllowAnonymous]
         [HttpPut("books/{id}")]
-        [Authorize(Roles = UserRoles.SuperUser)]
+        //[Authorize(Roles = UserRoles.SuperUser)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateBookRequest updateBookRequest)
         {
             var result = await _bookService.UpdateAsync(id, updateBookRequest);
