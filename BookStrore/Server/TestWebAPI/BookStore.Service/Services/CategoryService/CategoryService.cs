@@ -159,7 +159,7 @@ namespace BookStore.Services.CategoryService
 
         public async Task<IEnumerable<Category>> GetAllAsync()
         {
-            return await _categoryRepository.GetAllAsync(x => true);
+            return await _categoryRepository.GetAllWithOdata(x => true);
         }
     }
 }

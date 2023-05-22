@@ -155,12 +155,12 @@ namespace BookStore.API.Services.BookService
 
         public async Task<IEnumerable<Books>> GetAllBookAsync()
         {
-            return await _bookRepository.GetAllAsync(x => true);
+            return await _bookRepository.GetAllWithOdata( x => true);
         }
 
         public async Task<IEnumerable<BookBorrowingRequest>> GetAllBookRequestAsync()
         {
-            return await _bookRequestRepository.GetAllAsync(x => true);
+            return await _bookRequestRepository.GetAllWithOdata(x => true);
         }
 
         public async Task<BookViewModel> GetBookByIdAsync(int id)
@@ -190,12 +190,13 @@ namespace BookStore.API.Services.BookService
                 }
         }
 
+
         public async Task<BorrowingDetailResponse> GetBorrowingDetailByRequestIdAsync(int id)
         {
             using (var transaction = _borrowingDetailRepository.DatabaseTransaction())
                 try
                 {
-                    var result = await _borrowingDetailRepository.GetAllAsync(c => c.BookBorrowingRequestId == id);
+                    var result = await _borrowingDetailRepository.GetAllWithOdata(c => c.BookBorrowingRequestId == id);
                     if (result == null)
                     {
                         return new BorrowingDetailResponse
@@ -232,7 +233,7 @@ namespace BookStore.API.Services.BookService
             var transaction = _bookRequestRepository.DatabaseTransaction();
             try
             {
-                var result = (await _bookRequestRepository.GetAllAsync(x => x.UserRquestId == user.UserId)).ToList();
+                var result = (await _bookRequestRepository.GetAllWithOdata(x => x.UserRquestId == user.UserId)).ToList();
                 if (result == null)
                 {
                     return null;
@@ -273,7 +274,7 @@ namespace BookStore.API.Services.BookService
 
                 _bookRepository.SaveChanges();
 
-                var bookCategories = await _detailRepository.GetAllAsync(s => s.BookId == id);
+                var bookCategories = await _detailRepository.GetAllWithOdata(s => s.BookId == id);
                 foreach (var item in bookCategories)
                 {
                     await _detailRepository.DeleteAsync(item);

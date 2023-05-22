@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using BookStore.Data.Repositories.Interfaces;
+using System;
 
 namespace BookStore.Data.Repositories.Implements
 {
@@ -39,17 +40,21 @@ namespace BookStore.Data.Repositories.Implements
             return await result.FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate)
+        public IQueryable<T> GetAllAsync(Expression<Func<T, bool>>? predicate)
         {
             var result = predicate == null ? _dbSet : _dbSet.Where(predicate);
 
-            return await result.ToListAsync();
+            return result.AsQueryable();
+        }
+
+        public async Task<IEnumerable<T>> GetAllWithOdata(Expression<Func<T, bool>>? predicate)
+        {
+            return await GetAllAsync(predicate).ToListAsync();
         }
 
         public IEnumerable<T> GetAll(Expression<Func<T, bool>>? predicate)
         {
             return predicate == null ? _dbSet : _dbSet.Where(predicate);
-
         }
 
         public int SaveChanges()

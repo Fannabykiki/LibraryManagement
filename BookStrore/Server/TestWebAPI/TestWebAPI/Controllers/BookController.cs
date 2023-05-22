@@ -8,6 +8,7 @@ using BookStore.Service.Services.Loggerservice;
 using Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 
 namespace Book.API.Controllers
 {
@@ -26,10 +27,10 @@ namespace Book.API.Controllers
             _logger = logger;
             _usersService = usersService;
         }
-
+        [EnableQuery]
         [AllowAnonymous]
         [HttpGet("books")]
-        public async Task<IActionResult> GetAllBook()
+        public async Task<ActionResult<IQueryable<Books>>> GetAllBook()
         {
             var result = await _bookService.GetAllBookAsync();
             if (result == null) return StatusCode(500);
