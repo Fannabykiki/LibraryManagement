@@ -2,7 +2,7 @@
 
 namespace BookStore.Data.Repositories.Interfaces
 {
-    public interface IBookRequestRepository : IBaseRepository<BookBorrowingRequest>
+    public interface IShippingDetailRepository : IBaseRepository<ShippingDetail>
     {
     }
 }

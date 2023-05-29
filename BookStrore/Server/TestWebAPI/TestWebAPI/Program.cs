@@ -29,8 +29,7 @@ internal class Program
             builder.EntitySet<BookBorrowingRequest>("BookBorrowingRequests");
             builder.EntitySet<Category>("Categories");
             builder.EntitySet<User>("Users");
-            //builder.EntitySet<BookCategoryDetail>("BookCategoryDetails");
-            //builder.EntitySet<BookBorrowingRequestDetails>("BookBorrowingRequestDetails");
+            builder.EntitySet<Shipping>("Users");
             return builder.GetEdmModel();
         }
         var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +37,8 @@ internal class Program
         builder.Services.AddScoped<IBookRepository, BookRepository>();
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
         builder.Services.AddScoped<IBookCategoryDetail, BookCategoryDetailsRepository>();
+        builder.Services.AddScoped<IShippingDetailRepository, ShippingDetailRepository>();
+        builder.Services.AddScoped<IShippingRepository, ShippingRepository>();
         builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<IUsersService, UsersService>();
         builder.Services.AddScoped<IBookRequestRepository, BookRequestRepository>();
@@ -46,6 +47,7 @@ internal class Program
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddControllers().AddOData(opt => opt.AddRouteComponents("odata", GetEdmModel()).Filter().Select().Expand().Count().OrderBy().SetMaxTop(100));
         builder.Services.AddSignalR();
+
         builder.Services.AddCors(p => p.AddPolicy("corspolicy", build =>
         {
             build.WithOrigins("http://localhost:3000").AllowAnyMethod().AllowAnyHeader();

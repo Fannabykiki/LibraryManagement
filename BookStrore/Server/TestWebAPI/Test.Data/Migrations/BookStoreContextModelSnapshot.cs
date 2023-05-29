@@ -36,7 +36,7 @@ namespace BookStore.Data.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("UserApproveId")
+                    b.Property<Guid?>("UserApproveId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("UserRquestId")
@@ -111,6 +111,59 @@ namespace BookStore.Data.Migrations
                     b.HasKey("CategoryId");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("BookStore.Data.Entities.Shipping", b =>
+                {
+                    b.Property<int>("ShippingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ShippingId"), 1L, 1);
+
+                    b.Property<int>("BookBorrowingRequestId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ReceiverId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("ShippingId");
+
+                    b.HasIndex("BookBorrowingRequestId")
+                        .IsUnique();
+
+                    b.ToTable("Shippings");
+                });
+
+            modelBuilder.Entity("BookStore.Data.Entities.ShippingDetail", b =>
+                {
+                    b.Property<int>("ShippingId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ShippingDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ShippingId");
+
+                    b.ToTable("ShippingDetails");
                 });
 
             modelBuilder.Entity("BookStore.Data.Entities.User", b =>
@@ -192,9 +245,32 @@ namespace BookStore.Data.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("BookStore.Data.Entities.Shipping", b =>
+                {
+                    b.HasOne("BookStore.Data.Entities.BookBorrowingRequest", null)
+                        .WithOne("Shipping")
+                        .HasForeignKey("BookStore.Data.Entities.Shipping", "BookBorrowingRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BookStore.Data.Entities.ShippingDetail", b =>
+                {
+                    b.HasOne("BookStore.Data.Entities.Shipping", "Shipping")
+                        .WithOne("ShippingDetail")
+                        .HasForeignKey("BookStore.Data.Entities.ShippingDetail", "ShippingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Shipping");
+                });
+
             modelBuilder.Entity("BookStore.Data.Entities.BookBorrowingRequest", b =>
                 {
                     b.Navigation("BookBorrowingRequestDetails");
+
+                    b.Navigation("Shipping")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BookStore.Data.Entities.Books", b =>
@@ -207,6 +283,12 @@ namespace BookStore.Data.Migrations
             modelBuilder.Entity("BookStore.Data.Entities.Category", b =>
                 {
                     b.Navigation("BookCategoryDetails");
+                });
+
+            modelBuilder.Entity("BookStore.Data.Entities.Shipping", b =>
+                {
+                    b.Navigation("ShippingDetail")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BookStore.Data.Entities.User", b =>

@@ -15,14 +15,18 @@ namespace BookStore.API.Services.BookService
         private readonly IBookRequestRepository _bookRequestRepository;
         private readonly IBorrowingDetailRepository _borrowingDetailRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IShippingRepository _shippingRepository;
+        private readonly IShippingDetailRepository _shippingDetailRepository;
 
-        public BookService(IBookRepository bookRepository, ICategoryRepository categoryRepository, IBookCategoryDetail bookCategoryDetail, IBookRequestRepository bookRequestRepository, IBorrowingDetailRepository borrowingDetailRepository)
+        public BookService(IBookRepository bookRepository, ICategoryRepository categoryRepository, IBookCategoryDetail bookCategoryDetail, IBookRequestRepository bookRequestRepository, IBorrowingDetailRepository borrowingDetailRepository, IShippingRepository shippingRepository, IShippingDetailRepository shippingDetailRepository)
         {
             _bookRepository = bookRepository;
             _categoryRepository = categoryRepository;
             _detailRepository = bookCategoryDetail;
             _bookRequestRepository = bookRequestRepository;
             _borrowingDetailRepository = borrowingDetailRepository;
+            _shippingRepository = shippingRepository;
+            _shippingDetailRepository = shippingDetailRepository;
         }
 
         public async Task<AddBookResponse> CreateAsync(AddBookRequest addBookRequest)
@@ -107,7 +111,6 @@ namespace BookStore.API.Services.BookService
 
                     _borrowingDetailRepository.SaveChanges();
                 }
-
                 transaction.Commit();
 
                 return new CreateBorrowingBookResponse
@@ -190,7 +193,6 @@ namespace BookStore.API.Services.BookService
                 }
         }
 
-
         public async Task<BorrowingDetailResponse> GetBorrowingDetailByRequestIdAsync(int id)
         {
             using (var transaction = _borrowingDetailRepository.DatabaseTransaction())
@@ -252,7 +254,6 @@ namespace BookStore.API.Services.BookService
 
                 return null;
             }
-
         }
         public async Task<UpdateBookResponse> UpdateAsync(int id, UpdateBookRequest updateBookRequest)
         {
@@ -319,6 +320,7 @@ namespace BookStore.API.Services.BookService
                 try
                 {
                     var updateRequest = await _bookRequestRepository.GetAsync(s => s.BookBorrowingRequestId == id);
+                    var receiver = await _userRepository.GetAsync(s => s.UserId == updateRequest.UserRquestId);
                     if (updateRequest == null)
                     {
                         return new UpdateBookBorrowingResponse
@@ -331,9 +333,31 @@ namespace BookStore.API.Services.BookService
                     updateRequest.UserApproveId = user.UserId;
 
                     await _bookRequestRepository.UpdateAsync(updateRequest);
-
                     _bookRequestRepository.SaveChanges();
 
+                    if(updateBorrowingRequest.RequestStatus == Common.Enums.RequestStatusEnum.Approved)
+                    {
+                        var shipping = new Shipping
+                        {
+                            ReceiverName = receiver.UserName,
+                            CreateDate = DateTime.UtcNow,
+                            Status = Common.Enums.ShippingStatus.Pending,
+                            BookBorrowingRequestId = id
+                        };
+
+                        var newShipping = _shippingRepository.CreateAsync(shipping);
+                        _shippingRepository.SaveChanges();
+
+                        var shippingDetail = new ShippingDetail
+                        {
+                            Address = user.Address,
+                            CompanyName = "",
+                            PhoneNumber = user.PhoneNumber,
+                        };
+
+                        var newShippingDetail = _shippingDetailRepository.CreateAsync(shippingDetail);
+                        _shippingDetailRepository.SaveChanges();
+                    }
                     transaction.Commit();
 
                     return new UpdateBookBorrowingResponse

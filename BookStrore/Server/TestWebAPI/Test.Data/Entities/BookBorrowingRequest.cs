@@ -15,6 +15,7 @@ namespace BookStore.Data.Entities
         public virtual User User { get; set; }
         public RequestStatusEnum Status { get; set; }
         public DateTime RequestDate { get; set; }
+        public Shipping Shipping { get; set; }
         public List<BookBorrowingRequestDetails> BookBorrowingRequestDetails { get; set; }
     }
 }

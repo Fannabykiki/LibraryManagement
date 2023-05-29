@@ -33,11 +33,17 @@ namespace BookStore.Data
                         .WithMany(s => s.BookBorrowingRequestDetails)
                         .HasForeignKey(sc => sc.BookId);
 
-
             modelBuilder.Entity<BookBorrowingRequestDetails>()
                         .HasOne(sc => sc.BookBorrowingRequest)
                         .WithMany(s => s.BookBorrowingRequestDetails)
                         .HasForeignKey(sc => sc.BookBorrowingRequestId);
+
+            modelBuilder.Entity<ShippingDetail>().HasKey(sc => new { sc.ShippingId });
+
+            modelBuilder.Entity<ShippingDetail>()
+                       .HasOne(sc => sc.Shipping)
+                       .WithOne(s => s.ShippingDetail)
+                       .HasForeignKey<ShippingDetail>(sc => sc.ShippingId);
         }
 
         public DbSet<User> Users { get; set; }
@@ -46,5 +52,7 @@ namespace BookStore.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<BookBorrowingRequestDetails> BookBorrowingRequestDetails { get; set; }
         public DbSet<BookCategoryDetail> BookCategoryDetails { get; set; }
+        public DbSet<Shipping> Shippings { get; set; }
+        public DbSet<ShippingDetail> ShippingDetails { get; set; }
     }
 }
