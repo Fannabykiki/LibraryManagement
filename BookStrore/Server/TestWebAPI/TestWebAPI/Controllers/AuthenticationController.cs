@@ -32,7 +32,7 @@ namespace BookStore.API.Controllers
             {
                 return BadRequest();
             }
-            var claims = new Claim[]
+            var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Iat,DateTime.UtcNow.ToString()),
@@ -55,5 +55,6 @@ namespace BookStore.API.Controllers
 
             return Ok(tokenString);
         }
+
     }
 }

@@ -11,7 +11,7 @@ namespace BookStore.Data.Entities
         public int BookBorrowingRequestId { get; set; }
         [ForeignKey("User")]
         public Guid UserRquestId { get; set; }
-        public Guid? UserApproveId { get; set; }
+        public string? UserApprovedName { get; set; }
         public virtual User User { get; set; }
         public RequestStatusEnum Status { get; set; }
         public DateTime RequestDate { get; set; }

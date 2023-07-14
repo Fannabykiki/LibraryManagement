@@ -13,9 +13,9 @@ namespace BookStore.API.Services.BookService
         Task<UpdateBookResponse> UpdateAsync(int id, UpdateBookRequest updateBookRequest);
         Task<bool> DeleteAsync(int id);
         Task<BookViewModel> GetBookByIdAsync(int id);
-        Task<CreateBorrowingBookResponse> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest,User user);
+        Task<CreateBorrowingBookResponse> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest);
         Task<IEnumerable<BookBorrowingRequest>> GetAllBookRequestAsync();
-        Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(User user, UpdateBorrowingRequest updateBorrowingRequest,int id);
+        Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(UpdateBorrowingRequest updateBorrowingRequest,int id);
         //Task<GetBooksResponse> GetBooks(GetBooksRequest getBookRequest);
         Task<BorrowingDetailResponse> GetBorrowingDetailByRequestIdAsync(int id);
         Task<IEnumerable<GetBookResponse>> GetRequestByUserId(User user);

@@ -84,14 +84,14 @@ namespace BookStore.API.Services.BookService
             }
         }
 
-        public async Task<CreateBorrowingBookResponse> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest, User user)
+        public async Task<CreateBorrowingBookResponse> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest)
         {
             using var transaction = _bookRequestRepository.DatabaseTransaction();
             try
             {
                 var newBookBorrowingRequest = new BookBorrowingRequest
                 {
-                    UserRquestId = user.UserId,
+                    UserRquestId = createBookBorrowingRequest.UserRequestId,
                     RequestDate = DateTime.UtcNow,
                     Status = Common.Enums.RequestStatusEnum.Pending
                 };
@@ -309,18 +309,17 @@ namespace BookStore.API.Services.BookService
                 return new UpdateBookResponse
                 {
                     IsSucced = false,
-                }; ;
+                };
             }
         }
 
-        public async Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(User user, UpdateBorrowingRequest updateBorrowingRequest, int id)
+        public async Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(UpdateBorrowingRequest updateBorrowingRequest, int id)
         {
             using (var transaction = _bookRepository.DatabaseTransaction())
             {
                 try
                 {
                     var updateRequest = await _bookRequestRepository.GetAsync(s => s.BookBorrowingRequestId == id);
-                    var receiver = await _userRepository.GetAsync(s => s.UserId == updateRequest.UserRquestId);
                     if (updateRequest == null)
                     {
                         return new UpdateBookBorrowingResponse
@@ -330,34 +329,11 @@ namespace BookStore.API.Services.BookService
                     }
 
                     updateRequest.Status = updateBorrowingRequest.RequestStatus;
-                    updateRequest.UserApproveId = user.UserId;
+                    updateRequest.UserApprovedName = updateBorrowingRequest.UserApprovedName;
 
                     await _bookRequestRepository.UpdateAsync(updateRequest);
                     _bookRequestRepository.SaveChanges();
 
-                    if(updateBorrowingRequest.RequestStatus == Common.Enums.RequestStatusEnum.Approved)
-                    {
-                        var shipping = new Shipping
-                        {
-                            ReceiverName = receiver.UserName,
-                            CreateDate = DateTime.UtcNow,
-                            Status = Common.Enums.ShippingStatus.Pending,
-                            BookBorrowingRequestId = id
-                        };
-
-                        var newShipping = _shippingRepository.CreateAsync(shipping);
-                        _shippingRepository.SaveChanges();
-
-                        var shippingDetail = new ShippingDetail
-                        {
-                            Address = user.Address,
-                            CompanyName = "",
-                            PhoneNumber = user.PhoneNumber,
-                        };
-
-                        var newShippingDetail = _shippingDetailRepository.CreateAsync(shippingDetail);
-                        _shippingDetailRepository.SaveChanges();
-                    }
                     transaction.Commit();
 
                     return new UpdateBookBorrowingResponse

@@ -1,4 +1,8 @@
-﻿using BookStore.Data.Entities;
+﻿using BookStore.Common.DTOs.Shipping;
+using BookStore.Common.DTOs.ShippingDTO;
+using BookStore.Common.DTOs.ShippingDTOs;
+using BookStore.Common.DTOs.User;
+using BookStore.Data.Entities;
 
 namespace BookStore.API.Services.UserService
 {
@@ -6,5 +10,9 @@ namespace BookStore.API.Services.UserService
     {
         Task<User> LoginUser(string username, string password);
         Task<User> GetUserByIdAsync(Guid Id);
-    }
+		Task<IEnumerable<User>> GetAllUserAsync();
+		Task<bool> DeleteAsync(Guid id);
+		Task<CreateuserResponse> UpdateUserAsync(UpdateUserRequest updateUserRequest, Guid id);
+		Task<CreateuserResponse> CreateAsync(CreateUserRequest createUserRequest);
+	}
 }

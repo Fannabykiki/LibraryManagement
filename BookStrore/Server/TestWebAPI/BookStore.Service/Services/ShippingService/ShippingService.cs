@@ -7,161 +7,203 @@ using BookStore.Data.Repositories.Interfaces;
 namespace BookStore.Service.Services.ShippingService
 {
 
-    public class ShippingService : IShippingService
-    {
-        private readonly IShippingRepository _shippingRepository;
-        private readonly IShippingDetailRepository _shippingDetailRepository;
+	public class ShippingService : IShippingService
+	{
+		private readonly IShippingRepository _shippingRepository;
+		private readonly IShippingDetailRepository _shippingDetailRepository;
 
-        public ShippingService(IShippingRepository shippingRepository, IShippingDetailRepository shippingDetailRepository)
-        {
-            _shippingRepository = shippingRepository;
-            _shippingDetailRepository = shippingDetailRepository;
-        }
+		public ShippingService(IShippingRepository shippingRepository, IShippingDetailRepository shippingDetailRepository)
+		{
+			_shippingRepository = shippingRepository;
+			_shippingDetailRepository = shippingDetailRepository;
+		}
 
-        public async Task<bool> DeleteAsync(int id)
-        {
-            using (var transaction = _shippingRepository.DatabaseTransaction())
-                try
-                {
-                    var product = await _shippingRepository.GetAsync(s => s.ShippingId == id);
-                    if (product == null)
-                    {
-                        return false;
-                    }
+		public async Task<CreateShippingResponse> CreateAsync(CreateShippingRequest createShippingRequest)
+		{
+			using var transaction = _shippingRepository.DatabaseTransaction();
+			try
+			{
+				var newShippingRequest = new Shipping
+				{
+					CreateDate = DateTime.Now,
+					ReceiverName = createShippingRequest.ReceiverName,
+					BookBorrowingRequestId = createShippingRequest.BookBorrowingRequestId,
+					Status = Common.Enums.ShippingStatus.Pending
+				};
 
-                    _shippingRepository.DeleteAsync(product);
+				var newShipping = await _shippingRepository.CreateAsync(newShippingRequest);
 
-                    _shippingRepository.SaveChanges();
+				_shippingRepository.SaveChanges();
 
-                    transaction.Commit();
+				var newShippingDetail = new ShippingDetail
+				{
+					CompanyName = createShippingRequest.CompanyName,
+					ShippingId = newShipping.ShippingId,
+					Address = createShippingRequest.Address,
+					PhoneNumber = createShippingRequest.PhoneNumber,
+					ShippingDate = createShippingRequest.ShippingDate,
+				};
 
-                    return true;
-                }
-                catch (Exception)
-                {
-                    transaction.RollBack();
+				await _shippingDetailRepository.CreateAsync(newShippingDetail);
+				_shippingDetailRepository.SaveChanges();
 
-                    return false;
-                }
-        }
+				transaction.Commit();
 
-        public async Task<IEnumerable<Shipping>> GetAllShippingAsync()
-        {
-            return await _shippingRepository.GetAllWithOdata(x => true);
-        }
+				return new CreateShippingResponse
+				{
+					IsSucced = true,
+				};
+			}
+			catch (Exception)
+			{
+				transaction.RollBack();
 
-        public async Task<ShippingDetailViewModel> GetShippingByShippingIdAsync(int id)
-        {
-            using (var transaction = _shippingRepository.DatabaseTransaction())
-                try
-                {
-                    var result = await _shippingDetailRepository.GetAsync(c => c.ShippingId == id);
+				return new CreateShippingResponse
+				{
+					IsSucced = false,
+				};
+			}
+		}
 
-                    if (result == null)
-                    {
-                        return null;
-                    }
+		public async Task<bool> DeleteAsync(int id)
+		{
+			using (var transaction = _shippingRepository.DatabaseTransaction())
+				try
+				{
+					var product = await _shippingRepository.GetAsync(s => s.ShippingId == id);
+					if (product == null)
+					{
+						return false;
+					}
 
-                    return new ShippingDetailViewModel
-                    {
-                        Address = result.Address,
-                        CompanyName = result.CompanyName,
-                        PhoneNumber = result.PhoneNumber,
-                        ShippingDate = result.ShippingDate,
-                    };
-                }
-                catch
-                {
-                    transaction.RollBack();
+					_shippingRepository.DeleteAsync(product);
 
-                    return null;
-                }
-        }
+					_shippingRepository.SaveChanges();
 
-        public async Task<UpdateShippingResponse> UpdateShippingDetailAsync(UpdateShippingDetailRequest updateShippingDetailRequest, int id)
-        {
-            using (var transaction = _shippingDetailRepository.DatabaseTransaction())
-            {
-                try
-                {
-                    var updateRequest = await _shippingDetailRepository.GetAsync(s => s.ShippingId == id);
-                    if (updateRequest == null)
-                    {
-                        return new UpdateShippingResponse
-                        {
-                            IsSucced = false,
-                        };
-                    }
+					transaction.Commit();
 
-                    updateRequest.ShippingDate = updateRequest.ShippingDate;
-                    updateRequest.PhoneNumber = updateRequest.PhoneNumber;
-                    updateRequest.CompanyName = updateRequest.CompanyName;
-                    updateRequest.Address = updateRequest.Address;
+					return true;
+				}
+				catch (Exception)
+				{
+					transaction.RollBack();
 
-                    await _shippingDetailRepository.UpdateAsync(updateRequest);
-                    _shippingDetailRepository.SaveChanges();
+					return false;
+				}
+		}
 
-                    transaction.Commit();
+		public async Task<IEnumerable<Shipping>> GetAllShippingAsync()
+		{
+			return await _shippingRepository.GetAllWithOdata(x => true);
+		}
 
-                    return new UpdateShippingResponse
-                    {
-                        IsSucced = false,
-                    };
-                }
-                catch (Exception)
-                {
-                    transaction.RollBack();
+		public async Task<ShippingDetailViewModel> GetShippingByShippingIdAsync(int id)
+		{
+			using (var transaction = _shippingRepository.DatabaseTransaction())
+				try
+				{
+					var result = await _shippingDetailRepository.GetAsync(c => c.ShippingId == id);
 
-                    return new UpdateShippingResponse
-                    {
-                        IsSucced = false,
-                    };
-                }
-            }
-        }
+					if (result == null)
+					{
+						return null;
+					}
 
-        public async Task<UpdateShippingResponse> UpdateShippingStatus(UpdateShippingStatus updateShippingStatus, int id)
-        {
-            using (var transaction = _shippingDetailRepository.DatabaseTransaction())
-            {
-                try
-                {
-                    var updateRequest = await _shippingRepository.GetAsync(s => s.ShippingId == id);
-                    if (updateRequest == null)
-                    {
-                        return new UpdateShippingResponse
-                        {
-                            IsSucced = false,
-                        };
-                    }
+					return new ShippingDetailViewModel
+					{
+						Address = result.Address,
+						CompanyName = result.CompanyName,
+						PhoneNumber = result.PhoneNumber,
+						ShippingDate = result.ShippingDate,
+					};
+				}
+				catch
+				{
+					transaction.RollBack();
 
-                    updateRequest.Status = updateShippingStatus.RequestStatus;
+					return null;
+				}
+		}
 
-                    await _shippingRepository.UpdateAsync(updateRequest);
-                    _shippingRepository.SaveChanges();
+		public async Task<UpdateShippingResponse> UpdateShippingDetailAsync(UpdateShippingDetailRequest updateShippingDetailRequest, int id)
+		{
+			using (var transaction = _shippingDetailRepository.DatabaseTransaction())
+			{
+				try
+				{
+					var updateRequest = await _shippingDetailRepository.GetAsync(s => s.ShippingId == id);
+					if (updateRequest == null)
+					{
+						return new UpdateShippingResponse
+						{
+							IsSucced = false,
+						};
+					}
 
-                    transaction.Commit();
+					updateRequest.ShippingDate = updateShippingDetailRequest.ShippingDate;
+					updateRequest.PhoneNumber = updateShippingDetailRequest.PhoneNumber;
+					updateRequest.CompanyName = updateShippingDetailRequest.CompanyName;
+					updateRequest.Address = updateShippingDetailRequest.Address;
 
-                    return new UpdateShippingResponse
-                    {
-                        IsSucced = false,
-                    };
-                }
-                catch (Exception)
-                {
-                    transaction.RollBack();
+					await _shippingDetailRepository.UpdateAsync(updateRequest);
+					_shippingDetailRepository.SaveChanges();
 
-                    return new UpdateShippingResponse
-                    {
-                        IsSucced = false,
-                    };
-                }
-            }
-        }
+					transaction.Commit();
 
-        public Task<UpdateShippingResponse> UpdateShippingStatus(UpdateShippingStatus updateShippingStatus)
-        {
-            throw new NotImplementedException();
-        }
-    }
+					return new UpdateShippingResponse
+					{
+						IsSucced = true,
+					};
+				}
+				catch (Exception)
+				{
+					transaction.RollBack();
+
+					return new UpdateShippingResponse
+					{
+						IsSucced = false,
+					};
+				}
+			}
+		}
+
+		public async Task<UpdateShippingResponse> UpdateShippingStatus(UpdateShippingStatus updateShippingStatus, int id)
+		{
+			using (var transaction = _shippingDetailRepository.DatabaseTransaction())
+			{
+				try
+				{
+					var updateRequest = await _shippingRepository.GetAsync(s => s.ShippingId == id);
+					if (updateRequest == null)
+					{
+						return new UpdateShippingResponse
+						{
+							IsSucced = false,
+						};
+					}
+
+					updateRequest.Status = updateShippingStatus.RequestStatus;
+
+					await _shippingRepository.UpdateAsync(updateRequest);
+					_shippingRepository.SaveChanges();
+
+					transaction.Commit();
+
+					return new UpdateShippingResponse
+					{
+						IsSucced = true,
+					};
+				}
+				catch (Exception)
+				{
+					transaction.RollBack();
+
+					return new UpdateShippingResponse
+					{
+						IsSucced = false,
+					};
+				}
+			}
+		}
+	}
 }

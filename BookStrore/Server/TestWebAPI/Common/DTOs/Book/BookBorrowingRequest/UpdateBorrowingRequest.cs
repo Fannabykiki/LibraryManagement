@@ -4,6 +4,7 @@ namespace BookStore.Common.DTOs.Book.BookBorrowingRequest
 {
     public class UpdateBorrowingRequest
     {
-        public RequestStatusEnum RequestStatus { get; set; }
+		public string UserApprovedName { get; set; }
+		public RequestStatusEnum RequestStatus { get; set; }
     }
 }

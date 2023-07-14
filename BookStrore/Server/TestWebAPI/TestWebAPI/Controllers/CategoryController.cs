@@ -7,7 +7,6 @@ using Common.Enums;
 
 namespace Book.API.Controllers
 {
-    [Authorize]
     [Route("/api/category-management")]
     [ApiController]
     public class CategoryController : ControllerBase
@@ -20,7 +19,6 @@ namespace Book.API.Controllers
             _logger = logger;
         }
 
-        [AllowAnonymous]
         [HttpGet("categories")]
         public async Task<IActionResult> GetAsync()
         {
@@ -30,7 +28,6 @@ namespace Book.API.Controllers
             return Ok(result);
         }
 
-        [AllowAnonymous]
         [HttpGet("categories/{id}")]
         public async Task<IActionResult> GetCategoryById(int id)
         {
@@ -40,7 +37,6 @@ namespace Book.API.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = UserRoles.SuperUser)]
         [HttpPost("categories")]
         public async Task<IActionResult> Add([FromBody] AddCategoryRequest addCategoryRequest)
         {
@@ -50,7 +46,6 @@ namespace Book.API.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = UserRoles.SuperUser)]
         [HttpDelete("categories/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -62,7 +57,6 @@ namespace Book.API.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = UserRoles.SuperUser)]
         [HttpPut("categories/{id}")]
         public async Task<IActionResult> Update(int Id, [FromBody] UpdateCategoryRequest updateCategoryRequest)
         {

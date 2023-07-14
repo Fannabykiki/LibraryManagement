@@ -7,7 +7,8 @@
     }
 
     public class UserRoles{
-        public const string SuperUser = "SuperUser";
-        public const string NormalUser = "NormalUser";
+        
+        public const string Admin = "Admin";
+        public const string ClaimUser = "Admin";
     }
 }

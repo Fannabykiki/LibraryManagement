@@ -14,7 +14,8 @@ namespace BookStore.Service.Services.ShippingService
         Task<IEnumerable<Shipping>> GetAllShippingAsync();
         Task<ShippingDetailViewModel> GetShippingByShippingIdAsync(int id);
         Task<bool> DeleteAsync(int id);
-        Task<UpdateShippingResponse> UpdateShippingStatus(UpdateShippingStatus updateShippingStatus);
+        Task<UpdateShippingResponse> UpdateShippingStatus(UpdateShippingStatus updateShippingStatus,int id);
         Task<UpdateShippingResponse> UpdateShippingDetailAsync(UpdateShippingDetailRequest updateShippingDetailRequest,int id);
-    }
+		Task<CreateShippingResponse> CreateAsync(CreateShippingRequest createShippingRequest);
+	}
 }

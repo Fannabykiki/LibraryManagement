@@ -12,167 +12,141 @@ using Microsoft.AspNetCore.OData.Query;
 
 namespace Book.API.Controllers
 {
-    [Authorize]
-    [Route("/api/book-management")]
-    [ApiController]
-    public class BookController : ControllerBase
-    {
-        private readonly ILoggerManager _logger;
-        private readonly IBookService _bookService;
-        private readonly IUsersService _usersService;
+	//[Authorize]
+	[Route("/api/book-management")]
+	[ApiController]
+	public class BookController : ControllerBase
+	{
+		private readonly ILoggerManager _logger;
+		private readonly IBookService _bookService;
+		private readonly IUsersService _usersService;
 
-        public BookController(IBookService bookService, ILoggerManager logger, IUsersService usersService)
-        {
-            _bookService = bookService;
-            _logger = logger;
-            _usersService = usersService;
-        }
-        [EnableQuery]
-        [AllowAnonymous]
-        [HttpGet("books")]
-        public async Task<ActionResult<IQueryable<Books>>> GetAllBook()
-        {
-            var result = await _bookService.GetAllBookAsync();
-            if (result == null) return StatusCode(500);
-            //throw new ArgumentNullException();
-            return Ok(result);
-        }
+		public BookController(IBookService bookService, ILoggerManager logger, IUsersService usersService)
+		{
+			_bookService = bookService;
+			_logger = logger;
+			_usersService = usersService;
+		}
 
-        [Authorize(Roles = UserRoles.SuperUser)]
-        [AllowAnonymous]
-        [HttpPost("books")]
-        public async Task<IActionResult> Create([FromBody] AddBookRequest addBook)
-        {
-            var result = await _bookService.CreateAsync(addBook);
+		[EnableQuery]
+		[AllowAnonymous]
+		[HttpGet("books")]
+		public async Task<ActionResult<IQueryable<Books>>> GetAllBook()
+		{
+			var result = await _bookService.GetAllBookAsync();
+			if (result == null) return StatusCode(500);
+			//throw new ArgumentNullException();
+			return Ok(result);
+		}
 
-            if (result == null) return StatusCode(500);
+		//[Authorize(Policy = UserRoles.Admin)]
+		[AllowAnonymous]
+		[HttpPost("books")]
+		public async Task<IActionResult> Create([FromBody] AddBookRequest addBook)
+		{
+			var result = await _bookService.CreateAsync(addBook);
 
-            return Ok(result);
-        }
+			if (result == null) return StatusCode(500);
 
-        [HttpDelete("books/{id}")]
-        [Authorize(Roles = UserRoles.SuperUser)]
-        [AllowAnonymous]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var result = await _bookService.DeleteAsync(id);
+			return Ok(result);
+		}
 
-            return Ok(result);
-        }
+		[HttpDelete("books/{id}")]
+		//[Authorize(Policy = UserRoles.Admin)]
+		[AllowAnonymous]
+		public async Task<IActionResult> Delete(int id)
+		{
+			var result = await _bookService.DeleteAsync(id);
 
-        [HttpPut("books/{id}")]
-        [Authorize(Roles = UserRoles.SuperUser)]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateBookRequest updateBookRequest)
-        {
-            var result = await _bookService.UpdateAsync(id, updateBookRequest);
+			return Ok(result);
+		}
 
-            if (result == null) return StatusCode(500);
+		[HttpPut("books/{id}")]
+		//[Authorize(Policy = UserRoles.Admin)]
+		public async Task<IActionResult> Update(int id, [FromBody] UpdateBookRequest updateBookRequest)
+		{
+			var result = await _bookService.UpdateAsync(id, updateBookRequest);
 
-            return Ok(result);
-        }
+			if (result == null) return StatusCode(500);
 
-        [AllowAnonymous]
-        [HttpGet("books/{id}")]
-        public async Task<IActionResult> GetBookById(int id)
-        {
-            var result = await _bookService.GetBookByIdAsync(id);
+			return Ok(result);
+		}
 
-            if (result == null) return NotFound();
+		[AllowAnonymous]
+		[HttpGet("books/{id}")]
+		public async Task<IActionResult> GetBookById(int id)
+		{
+			var result = await _bookService.GetBookByIdAsync(id);
 
-            return Ok(result);
-        }
+			if (result == null) return NotFound();
 
-        [Authorize(Roles = UserRoles.SuperUser)]
-        [HttpPost("book-borrowing")]
-        public async Task<IActionResult> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest)
-        {
-            var userId = this.GetCurrentLoginUserId();
-            if(userId == null)
-            {
-                return NotFound();
-            }
-            if (userId != null)
-            {
-                var user = await _usersService.GetUserByIdAsync(userId.Value);
-                if (user != null)
-                {
-                    var bookBorrowingRequest = await _bookService.CreateBookBorrowing(createBookBorrowingRequest, user);
+			return Ok(result);
+		}
 
-                    return bookBorrowingRequest != null ? Ok(bookBorrowingRequest) : BadRequest();
-                }
-                else
-                    return BadRequest();
-            }
-            else
-                return BadRequest();
-        }
+		//[Authorize(Policy = UserRoles.Admin)]
+		[HttpPost("book-borrowing")]
+		public async Task<IActionResult> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest)
+		{
+			var result = await _bookService.CreateBookBorrowing(createBookBorrowingRequest);
+
+			if (result == null) return StatusCode(500);
+
+			return Ok(result);
+		}
 
 
-        [Authorize(Roles = UserRoles.SuperUser)]
-        [HttpGet("book-borrowing")]
-        public async Task<IEnumerable<BookBorrowingRequest>> GetAllBookRequest()
-        {
-            return await _bookService.GetAllBookRequestAsync();
-        }
+		//[Authorize(Policy = UserRoles.Admin)]
+		[HttpGet("book-borrowing")]
+		public async Task<IEnumerable<BookBorrowingRequest>> GetAllBookRequest()
+		{
+			return await _bookService.GetAllBookRequestAsync();
+		}
 
-        [Authorize(Roles = UserRoles.SuperUser)]
-        [HttpPut("book-borrowing/{id}")]
-        public async Task<IActionResult> UpdateBorrowingRequest(int id,UpdateBorrowingRequest updateBorrowingRequest)
-        {
-            var userId = this.GetCurrentLoginUserId();
-            if (userId == null)
-            {
-                return NotFound();
-            }
-            if (userId != null)
-            {
-                var user = await _usersService.GetUserByIdAsync(userId.Value);
-                if (user != null)
-                {
-                    var bookBorrowingRequest = await _bookService.UpdateBorrowingRequestAsync(user, updateBorrowingRequest,id);
+		//[Authorize(Policy = UserRoles.Admin)]
+		[HttpPut("book-borrowing/{id}")]
+		public async Task<IActionResult> UpdateBorrowingRequest(int id, UpdateBorrowingRequest updateBorrowingRequest)
+		{
 
-                    return bookBorrowingRequest != null ? Ok(bookBorrowingRequest) : BadRequest();
-                }
-                else
-                    return BadRequest();
-            }
-            else
-                return BadRequest();
-        }
+			var result = await _bookService.UpdateBorrowingRequestAsync(updateBorrowingRequest, id);
 
-        [Authorize(Roles = UserRoles.SuperUser)]
-        [HttpGet("book-borrowingdetail/{id}")]
-        public async Task<IActionResult> GetBorrowingDetailByRequestIdAsync(int id)
-        {
-            var result = await _bookService.GetBorrowingDetailByRequestIdAsync(id);
-            if (result == null) return NotFound();
+			if (result == null) return StatusCode(500);
 
-            return Ok(result);
-        }
+			return Ok(result);
+		}
 
-        [Authorize(Roles = UserRoles.SuperUser)]
-        [HttpGet("book-borrowingrequest")]
-        public async Task<IActionResult> GetRequestByUserId()
-        {
-            var userId = this.GetCurrentLoginUserId();  
-            if (userId == null)
-            {
-                return NotFound();
-            }
-            if (userId != null)
-            {
-                var user = await _usersService.GetUserByIdAsync(userId.Value);
-                if (user != null)
-                {
-                    var bookBorrowingRequest = await _bookService.GetRequestByUserId(user);
+		//[Authorize(Policy = UserRoles.Admin)]
+		[HttpGet("book-borrowingdetail/{id}")]
+		public async Task<IActionResult> GetBorrowingDetailByRequestIdAsync(int id)
+		{
+			var result = await _bookService.GetBorrowingDetailByRequestIdAsync(id);
+			if (result == null) return NotFound();
 
-                    return bookBorrowingRequest != null ? Ok(bookBorrowingRequest) : BadRequest();
-                }
-                else
-                    return BadRequest();
-            }
-            else
-                return BadRequest();
-        }
-    }
+			return Ok(result);
+		}
+
+		//[Authorize(Policy = UserRoles.Admin)]
+		[HttpGet("book-borrowingrequest")]
+		public async Task<IActionResult> GetRequestByUserId()
+		{
+			var userId = this.GetCurrentLoginUserId();
+			if (userId == null)
+			{
+				return NotFound();
+			}
+			if (userId != null)
+			{
+				var user = await _usersService.GetUserByIdAsync(userId.Value);
+				if (user != null)
+				{
+					var bookBorrowingRequest = await _bookService.GetRequestByUserId(user);
+
+					return bookBorrowingRequest != null ? Ok(bookBorrowingRequest) : BadRequest();
+				}
+				else
+					return BadRequest();
+			}
+			else
+				return BadRequest();
+		}
+	}
 }

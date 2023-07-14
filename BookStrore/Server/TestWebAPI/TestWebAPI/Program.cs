@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.OData;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 using BookStore.Data.Entities;
+using Common.Enums;
+using BookStore.Service.Services.ShippingService;
 
 internal class Program
 {
@@ -29,22 +31,23 @@ internal class Program
             builder.EntitySet<BookBorrowingRequest>("BookBorrowingRequests");
             builder.EntitySet<Category>("Categories");
             builder.EntitySet<User>("Users");
-            builder.EntitySet<Shipping>("Users");
+            builder.EntitySet<Shipping>("Shippings");
             return builder.GetEdmModel();
         }
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddScoped<IBookService, BookService>();
         builder.Services.AddScoped<IBookRepository, BookRepository>();
-        builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+		builder.Services.AddScoped<ICategoryService, CategoryService>();
+		builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
         builder.Services.AddScoped<IBookCategoryDetail, BookCategoryDetailsRepository>();
         builder.Services.AddScoped<IShippingDetailRepository, ShippingDetailRepository>();
         builder.Services.AddScoped<IShippingRepository, ShippingRepository>();
-        builder.Services.AddScoped<ICategoryService, CategoryService>();
-        builder.Services.AddScoped<IUsersService, UsersService>();
+        builder.Services.AddScoped<IShippingService, ShippingService>();
+		builder.Services.AddScoped<IUserRepository, UserRepository>();
+		builder.Services.AddScoped<IUsersService, UsersService>();
         builder.Services.AddScoped<IBookRequestRepository, BookRequestRepository>();
         builder.Services.AddScoped<IBorrowingDetailRepository, BorrowingDetailReposotory>();
         builder.Services.AddSingleton<ILoggerManager, LoggerManager>();
-        builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddControllers().AddOData(opt => opt.AddRouteComponents("odata", GetEdmModel()).Filter().Select().Expand().Count().OrderBy().SetMaxTop(100));
         builder.Services.AddSignalR();
 
@@ -74,7 +77,11 @@ internal class Program
         {
             opt.UseSqlServer(configuration.GetConnectionString("DBConnString"));
         });
-
+        builder.Services.AddAuthorization(op =>
+        {
+            op.AddPolicy(UserRoles.Admin, p => p.RequireClaim(UserRoles.ClaimUser,"Admin"));
+        }
+        );
 
         builder.Services.AddHttpContextAccessor();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
