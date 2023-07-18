@@ -22,8 +22,4 @@
     <ProjectReference Include="..\TestWebAPI\BookStore.API.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Pages\Shippings\" />
-  </ItemGroup>
-
 </Project>

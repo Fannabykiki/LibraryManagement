@@ -1,0 +1,135 @@
+﻿@page
+@model BookStore.Client.Pages.Shippings.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+<head>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Shipping[0].ReceiverName)
+            </th>
+			<th>
+				@Html.DisplayNameFor(model => model.Shipping[0].BookBorrowingRequestId)
+			</th>
+            <th>
+                @Html.DisplayNameFor(model => model.Shipping[0].CreateDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Shipping[0].Status)
+            </th>
+            <th>
+				Edit
+			</th>
+			<th>
+				Detail
+			</th>
+			<th>
+				Delete
+			</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<script type="text/javascript">
+	$(document).ready(function () {
+		LoadData();
+	});
+
+	function LoadData() {
+		$("table tbody").html("");
+		$.ajax({
+			url: "https://localhost:7233/api/shipping-management/shippings",
+			type: "GET",
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			success: function (result, status, xhr) {
+				$.each(result, function (index, value) {
+					var appendElement = $("<tr>");
+					appendElement.append($("<td>").html(value["receiverName"]));
+					appendElement.append($("<td>").html(value["bookBorrowingRequestId"]));
+					var publishedDate = moment(value["createDate"]).format("DD/MM/YYYY");
+					if (moment(publishedDate, "DD/MM/YYYY", true).isValid()) {
+						appendElement.append($("<td>").html(publishedDate));
+					} else {
+						appendElement.append($("<td>").html("Invalid date"));
+					}
+					var statusText = "";
+					if (value["status"] === 0) {
+						statusText = "Pending";
+					} else if (value["status"] === 1) {
+						statusText = "Shipping";
+					} else if (value["status"] === -1) {
+						statusText = "Completed";
+					} else {
+						statusText = "unknown";
+					}
+					appendElement.append($("<td>").html(statusText));
+					appendElement.append($("<td>").html("<a href=\"Shippings/Edit?id=" + value["shippingId"] + "\">Edit</a>"));
+					appendElement.append($("<td>").html("<a href=\"Shippings/Details?id=" + value["shippingId"] + "\">Details</a>"));
+					appendElement.append($("<td>").html("<a href=\"Shippings/Delete?id=" + value["shippingId"] + "\">Delete</a>"));
+					$("table tbody").append(appendElement);
+				});
+			},
+			error: function (xhr, status, error) {
+				console.log(xhr);
+			}
+		});
+	}
+
+
+	function onSearch() {
+		var title = $('#title').val();
+		$("table tbody").html("");
+		$.ajax({
+			url: "https://localhost:7233/api/shipping-management/shippings?$filter=contains(receiverName," + "'" + title + "')",
+			type: "GET",
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			success: function (result, status, xhr) {
+				$("table tbody").html("");
+				$.each(result, function (index, value) {
+					var appendElement = $("<tr>");
+					appendElement.append($("<td>").html(value["receiverName"]));
+					appendElement.append($("<td>").html(value["bookBorrowingRequestId"]));
+					var publishedDate = moment(value["createDate"]).format("DD/MM/YYYY");
+					if (moment(publishedDate, "DD/MM/YYYY", true).isValid()) {
+						appendElement.append($("<td>").html(publishedDate));
+					} else {
+						appendElement.append($("<td>").html("Invalid date"));
+					}
+					var statusText = "";
+					if (value["status"] === 0) {
+						statusText = "Pending";
+					} else if (value["status"] === 1) {
+						statusText = "Shipping";
+					} else if (value["status"] === -1) {
+						statusText = "Completed";
+					} else {
+						statusText = "unknown";
+					}
+					appendElement.append($("<td>").html(statusText));
+					appendElement.append($("<td>").html("<a href=\"Shippings/Edit?id=" + value["shippingId"] + "\">Edit</a>"));
+					appendElement.append($("<td>").html("<a href=\"Shippings/Details?id=" + value["shippingId"] + "\">Details</a>"));
+					appendElement.append($("<td>").html("<a href=\"Shippings/Delete?id=" + value["shippingId"] + "\">Delete</a>"));
+					$("table tbody").append(appendElement);
+				});
+			},
+			error: function (xhr, status, error) {
+				console.log(xhr)
+			}
+		});
+		return false;
+	}
+</script>
