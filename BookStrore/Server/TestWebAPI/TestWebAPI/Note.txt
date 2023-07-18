@@ -5,7 +5,7 @@
 2. Open Package Manager Console
 
 3. Run migration:
-add-migration AddShippingEntityMigration -context BookStoreContext -o Migrations
+add-migration FirstMigration -context BookStoreContext -o Migrations
 
 4. Update migration:
 update-database

@@ -9,7 +9,8 @@ namespace BookStore.Data.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CategoryId { get; set; }
         public string CategoryName { get; set; }
+        public string Description { get; set; }
 
-        public List<BookCategoryDetail> BookCategoryDetails { get; set; }
+		public List<Books> Book { get; set; }
     }
 }

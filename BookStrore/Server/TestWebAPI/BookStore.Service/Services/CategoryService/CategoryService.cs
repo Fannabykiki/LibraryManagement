@@ -9,11 +9,9 @@ namespace BookStore.Services.CategoryService
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
-        private readonly IBookCategoryDetail _detailRepository;
-        public CategoryService(ICategoryRepository categoryRepository, IBookCategoryDetail detailRepository = null)
+        public CategoryService(ICategoryRepository categoryRepository)
         {
             _categoryRepository = categoryRepository;
-            _detailRepository = detailRepository;
         }
         public async Task<AddCategoryResponse> CreateAsync(AddCategoryRequest addCategoryRequest)
         {
@@ -22,7 +20,8 @@ namespace BookStore.Services.CategoryService
                 {
                     var addCategory = new Category
                     {
-                        CategoryName = addCategoryRequest.CategoryName
+                        CategoryName = addCategoryRequest.CategoryName,
+                        Description = addCategoryRequest.Description,
                     };
                     var category = await _categoryRepository.CreateAsync(addCategory);
 
@@ -32,52 +31,54 @@ namespace BookStore.Services.CategoryService
 
                     return new AddCategoryResponse
                     {
-                        CategoryName = category.CategoryName,
-                        CategoryId = category.CategoryId
+                        IsSucced = true,
                     };
                 }
                 catch (Exception)
                 {
                     transaction.RollBack();
 
-                    return null;
-                }
-        }
-
-        public async Task<BookCategoryDetail> GetBooksByCategoryIdAsync(int id)
-        {
-            using (var transaction = _detailRepository.DatabaseTransaction())
-                try
-                {
-                    var book = await _detailRepository.GetAsync(c => c.CategoryId == id);
-
-                    if (book == null)
+                    return new AddCategoryResponse
                     {
-                        return null;
-                    }
-
-                    return new BookCategoryDetail
-                    {
-                        BookId = book.BookId,
-                        CategoryId = id,
+                        IsSucced = false,
                     };
-
-                    transaction.Commit();
-                }
-                catch
-                {
-                    transaction.RollBack();
-
-                    return null;
                 }
         }
+
+        //public async Task<BookCategoryDetail> GetBooksByCategoryIdAsync(int id)
+        //{
+        //    using (var transaction = _detailRepository.DatabaseTransaction())
+        //        try
+        //        {
+        //            var book = await _detailRepository.GetAsync(c => c.CategoryId == id);
+
+        //            if (book == null)
+        //            {
+        //                return null;
+        //            }
+
+        //            return new BookCategoryDetail
+        //            {
+        //                BookId = book.BookId,
+        //                CategoryId = id,
+        //            };
+
+        //            transaction.Commit();
+        //        }
+        //        catch
+        //        {
+        //            transaction.RollBack();
+
+        //            return null;
+        //        }
+        //}
 
         public async Task<CategoryViewModel> GetCategoryByIdAsync(int id)
         {
             using (var transaction = _categoryRepository.DatabaseTransaction())
                 try
                 {
-                    var category = await _categoryRepository.GetAsync(c => c.CategoryId == id);
+                    var category = await _categoryRepository.GetAsync(c => c.CategoryId == id, x=> x.Book);
 
                     if (category == null)
                     {
@@ -89,7 +90,8 @@ namespace BookStore.Services.CategoryService
                     return new CategoryViewModel
                     {
                         CategoryId = category.CategoryId,
-                        CategoryName = category.CategoryName
+                        CategoryName = category.CategoryName,
+                        Description = category.Description
                     };
                 }
                 catch
@@ -105,11 +107,12 @@ namespace BookStore.Services.CategoryService
             using (var transaction = _categoryRepository.DatabaseTransaction())
                 try
                 {
-                    var category = await _categoryRepository.GetAsync(s => s.CategoryId == Id);
+                    var category = await _categoryRepository.GetAsync(s => s.CategoryId == Id, x=> x.Book);
                     if (category != null)
                     {
                         category.CategoryId = Id;
                         category.CategoryName = updateCategoryRequest.CategoryName;
+                        category.Description = updateCategoryRequest.Description;
 
                         _categoryRepository.SaveChanges();
                     }
@@ -128,7 +131,7 @@ namespace BookStore.Services.CategoryService
 
                     return new UpdateCategoryResponse
                     {
-                        IsSucced = true,
+                        IsSucced = false,
                     };
                 }
         }
@@ -138,7 +141,7 @@ namespace BookStore.Services.CategoryService
             using (var transaction = _categoryRepository.DatabaseTransaction())
                 try
                 {
-                    var category = await _categoryRepository.GetAsync(s => s.CategoryId == id);
+                    var category = await _categoryRepository.GetAsync(s => s.CategoryId == id, x=> x.Book);
                     if (category != null)
                     {
                         _categoryRepository.DeleteAsync(category);
@@ -159,7 +162,7 @@ namespace BookStore.Services.CategoryService
 
         public async Task<IEnumerable<Category>> GetAllAsync()
         {
-            return await _categoryRepository.GetAllWithOdata(x => true);
+            return await _categoryRepository.GetAllWithOdata(x => true, null);
         }
     }
 }

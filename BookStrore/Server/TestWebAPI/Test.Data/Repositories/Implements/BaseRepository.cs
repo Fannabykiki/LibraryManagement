@@ -33,23 +33,54 @@ namespace BookStore.Data.Repositories.Implements
             return Task.FromResult(true);
         }
 
-        public async Task<T>? GetAsync(Expression<Func<T, bool>>? predicate)
+        public async Task<T>? GetAsync(Expression<Func<T, bool>>? predicate, Expression<Func<T, object>>? pre)
         {
-            var result = predicate == null ? _dbSet : _dbSet.Where(predicate);
+			if (predicate == null )
+			{
+				return await _dbSet.FirstOrDefaultAsync();
+			}
+			else
+			{
+				if (pre != null)
+                {
+					var result = await _dbSet.Include(pre).Where(predicate).FirstOrDefaultAsync();
+					return result;
+				}
+                else
+                {
+					var result = await _dbSet.Where(predicate).FirstOrDefaultAsync();
+					return result;
+				}
+			}
+            return await _dbSet.FirstOrDefaultAsync();
+		}
 
-            return await result.FirstOrDefaultAsync();
-        }
-
-        public IQueryable<T> GetAllAsync(Expression<Func<T, bool>>? predicate)
+        public IQueryable<T> GetAllAsync(Expression<Func<T, bool>>? predicate, Expression<Func<T, object>>? pre)
         {
-            var result = predicate == null ? _dbSet : _dbSet.Where(predicate);
+			IQueryable<T> result;
 
-            return result.AsQueryable();
-        }
+			if (predicate == null)
+			{
+				result = _dbSet;
+			}
+			else
+			{
+                if(pre != null)
+                {
+					result = _dbSet.Include(pre).Where(predicate);
+				}
+                else
+                {
+					result = _dbSet.Where(predicate);
+				}
+			}
 
-        public async Task<IEnumerable<T>> GetAllWithOdata(Expression<Func<T, bool>>? predicate)
+			return result.AsQueryable();
+		}
+
+        public async Task<IEnumerable<T>> GetAllWithOdata(Expression<Func<T, bool>>? predicate, Expression<Func<T, object>>? pre)
         {
-            return await GetAllAsync(predicate).ToListAsync();
+            return await GetAllAsync(predicate, pre).ToListAsync();
         }
 
         public IEnumerable<T> GetAll(Expression<Func<T, bool>>? predicate)

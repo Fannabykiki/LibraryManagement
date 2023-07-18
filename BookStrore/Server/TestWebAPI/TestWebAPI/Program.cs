@@ -19,6 +19,8 @@ using Microsoft.OData.ModelBuilder;
 using BookStore.Data.Entities;
 using Common.Enums;
 using BookStore.Service.Services.ShippingService;
+using AutoMapper;
+using BookStore.Service.Services.Mapping;
 
 internal class Program
 {
@@ -35,11 +37,16 @@ internal class Program
             return builder.GetEdmModel();
         }
         var builder = WebApplication.CreateBuilder(args);
-        builder.Services.AddScoped<IBookService, BookService>();
+		var mapperConfig = new MapperConfiguration(mc =>
+		{
+			mc.AddProfile(new MappingProfile());
+		});
+		IMapper mapper = mapperConfig.CreateMapper();
+		builder.Services.AddSingleton(mapper);
+		builder.Services.AddScoped<IBookService, BookService>();
         builder.Services.AddScoped<IBookRepository, BookRepository>();
 		builder.Services.AddScoped<ICategoryService, CategoryService>();
 		builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-        builder.Services.AddScoped<IBookCategoryDetail, BookCategoryDetailsRepository>();
         builder.Services.AddScoped<IShippingDetailRepository, ShippingDetailRepository>();
         builder.Services.AddScoped<IShippingRepository, ShippingRepository>();
         builder.Services.AddScoped<IShippingService, ShippingService>();
@@ -53,7 +60,7 @@ internal class Program
 
         builder.Services.AddCors(p => p.AddPolicy("corspolicy", build =>
         {
-            build.WithOrigins("http://localhost:3000").AllowAnyMethod().AllowAnyHeader();
+            build.WithOrigins("https://localhost:7115").AllowAnyMethod().AllowAnyHeader();
         }));
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(

@@ -27,7 +27,7 @@ namespace BookStore.API.Services.UserService
 
 		public async Task<User> GetUserByIdAsync(Guid id)
 		{
-			var user = await _userRepository.GetAsync(user => user.UserId == id);
+			var user = await _userRepository.GetAsync(user => user.UserId == id, null);
 
 			if (user == null || id == null) return null;
 
@@ -40,7 +40,7 @@ namespace BookStore.API.Services.UserService
 
 		public async Task<IEnumerable<User>> GetAllUserAsync()
 		{
-			return await _userRepository.GetAllWithOdata(x => true);
+			return await _userRepository.GetAllWithOdata(x => true,null);
 		}
 
 		public async Task<bool> DeleteAsync(Guid id)
@@ -48,7 +48,7 @@ namespace BookStore.API.Services.UserService
 			using (var transaction = _userRepository.DatabaseTransaction())
 				try
 				{
-					var product = await _userRepository.GetAsync(s => s.UserId == id);
+					var product = await _userRepository.GetAsync(s => s.UserId == id, null);
 					if (product == null)
 					{
 						return false;
@@ -76,7 +76,7 @@ namespace BookStore.API.Services.UserService
 			{
 				try
 				{
-					var updateRequest = await _userRepository.GetAsync(s => s.UserId == id);
+					var updateRequest = await _userRepository.GetAsync(s => s.UserId == id, null);
 					if (updateRequest == null)
 					{
 						return new CreateuserResponse

@@ -4,6 +4,9 @@ using BookStore.API.Services.CategoryService;
 using BookStore.Service.Services.Loggerservice;
 using Microsoft.AspNetCore.Authorization;
 using Common.Enums;
+using BookStore.API.DTOs;
+using BookStore.Data.Entities;
+using Microsoft.AspNetCore.OData.Query;
 
 namespace Book.API.Controllers
 {
@@ -18,26 +21,16 @@ namespace Book.API.Controllers
             _categoryService = categoryService;
             _logger = logger;
         }
-
+        [EnableQuery]
         [HttpGet("categories")]
-        public async Task<IActionResult> GetAsync()
-        {
-            var result = await _categoryService.GetAllAsync();
-            if (result == null) return StatusCode(500);
+		public async Task<ActionResult<IQueryable<Category>>> GetAllCategory()
+		{
+			var result = await _categoryService.GetAllAsync();
+			if (result == null) return StatusCode(500);
+			return Ok(result);
+		}
 
-            return Ok(result);
-        }
-
-        [HttpGet("categories/{id}")]
-        public async Task<IActionResult> GetCategoryById(int id)
-        {
-            var result = await _categoryService.GetCategoryByIdAsync(id);
-            if (result == null) return StatusCode(500);
-
-            return Ok(result);
-        }
-
-        [HttpPost("categories")]
+		[HttpPost("categories")]
         public async Task<IActionResult> Add([FromBody] AddCategoryRequest addCategoryRequest)
         {
             var result = await _categoryService.CreateAsync(addCategoryRequest);

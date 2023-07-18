@@ -70,7 +70,7 @@ namespace BookStore.Service.Services.ShippingService
 			using (var transaction = _shippingRepository.DatabaseTransaction())
 				try
 				{
-					var product = await _shippingRepository.GetAsync(s => s.ShippingId == id);
+					var product = await _shippingRepository.GetAsync(s => s.ShippingId == id, null);
 					if (product == null)
 					{
 						return false;
@@ -94,7 +94,7 @@ namespace BookStore.Service.Services.ShippingService
 
 		public async Task<IEnumerable<Shipping>> GetAllShippingAsync()
 		{
-			return await _shippingRepository.GetAllWithOdata(x => true);
+			return await _shippingRepository.GetAllWithOdata(x => true,null);
 		}
 
 		public async Task<ShippingDetailViewModel> GetShippingByShippingIdAsync(int id)
@@ -102,7 +102,7 @@ namespace BookStore.Service.Services.ShippingService
 			using (var transaction = _shippingRepository.DatabaseTransaction())
 				try
 				{
-					var result = await _shippingDetailRepository.GetAsync(c => c.ShippingId == id);
+					var result = await _shippingDetailRepository.GetAsync(c => c.ShippingId == id, null);
 
 					if (result == null)
 					{
@@ -131,7 +131,7 @@ namespace BookStore.Service.Services.ShippingService
 			{
 				try
 				{
-					var updateRequest = await _shippingDetailRepository.GetAsync(s => s.ShippingId == id);
+					var updateRequest = await _shippingDetailRepository.GetAsync(s => s.ShippingId == id, null);
 					if (updateRequest == null)
 					{
 						return new UpdateShippingResponse
@@ -173,7 +173,7 @@ namespace BookStore.Service.Services.ShippingService
 			{
 				try
 				{
-					var updateRequest = await _shippingRepository.GetAsync(s => s.ShippingId == id);
+					var updateRequest = await _shippingRepository.GetAsync(s => s.ShippingId == id, null);
 					if (updateRequest == null)
 					{
 						return new UpdateShippingResponse

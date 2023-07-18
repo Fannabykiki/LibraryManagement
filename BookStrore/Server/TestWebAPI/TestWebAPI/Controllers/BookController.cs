@@ -31,11 +31,10 @@ namespace Book.API.Controllers
 		[EnableQuery]
 		[AllowAnonymous]
 		[HttpGet("books")]
-		public async Task<ActionResult<IQueryable<Books>>> GetAllBook()
+		public async Task<ActionResult<IQueryable<BookViewModel>>> GetAllBook()
 		{
 			var result = await _bookService.GetAllBookAsync();
 			if (result == null) return StatusCode(500);
-			//throw new ArgumentNullException();
 			return Ok(result);
 		}
 
@@ -94,10 +93,10 @@ namespace Book.API.Controllers
 			return Ok(result);
 		}
 
-
+		[EnableQuery]
 		//[Authorize(Policy = UserRoles.Admin)]
 		[HttpGet("book-borrowing")]
-		public async Task<IEnumerable<BookBorrowingRequest>> GetAllBookRequest()
+		public async Task<IEnumerable<BorrowingRequestViewModel>> GetAllBookRequest()
 		{
 			return await _bookService.GetAllBookRequestAsync();
 		}
@@ -119,6 +118,7 @@ namespace Book.API.Controllers
 		public async Task<IActionResult> GetBorrowingDetailByRequestIdAsync(int id)
 		{
 			var result = await _bookService.GetBorrowingDetailByRequestIdAsync(id);
+
 			if (result == null) return NotFound();
 
 			return Ok(result);

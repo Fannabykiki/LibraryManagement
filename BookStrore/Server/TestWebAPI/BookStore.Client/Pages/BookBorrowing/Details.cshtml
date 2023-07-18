@@ -1,0 +1,60 @@
+﻿@page
+@model BookStore.Client.Pages.BookBorrowing.DetailsModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+<head>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+<h1>Details</h1>
+    <h4>BookBorrowingRequest</h4>
+    <hr />
+<div>
+	<table class="table">
+		<thead>
+			<input type="hidden" asp-for="BookBorrowingRequest.BookBorrowingRequestId" id="id" />
+			<tr>
+				<th>
+					Book Name
+				</th>
+				<th>
+					BookBorrowingRequestId
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+	</div>
+<div>
+	<a href="https://localhost:7115/BookBorrowing">Back to List</a>
+</div>
+	<script type="text/javascript">
+		$(document).ready(function () {
+			LoadData();
+		});
+
+		function LoadData() {
+		var id = $('#id').val();
+			$("table tbody").html("");
+			$.ajax({
+			url: "https://localhost:7233/api/book-management/book-borrowingdetail/" + id,
+				type: "GET",
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				success: function (result, status, xhr) {
+					$.each(result, function (index, value) {
+						var appendElement = $("<tr>");
+					appendElement.append($("<td>").html(value["bookName"]));
+					appendElement.append($("<td>").html(value["bookBorrowingRequestId"]));
+						$("table tbody").append(appendElement);
+					});
+				},
+				error: function (xhr, status, error) {
+					console.log(xhr);
+				}
+			});
+		}
+	</script>

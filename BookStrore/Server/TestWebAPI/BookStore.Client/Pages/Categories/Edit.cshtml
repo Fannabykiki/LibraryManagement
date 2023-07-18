@@ -1,0 +1,65 @@
+﻿@page
+@model BookStore.Client.Pages.Categories.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+<head>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+<h1>Edit</h1>
+
+<h4>Category</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Category.CategoryId" id="id" />
+            <div class="form-group">
+                <label asp-for="Category.CategoryName" class="control-label"></label>
+                <input asp-for="Category.CategoryName" class="form-control" id="cate" />
+                <span asp-validation-for="Category.CategoryName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Category.Description" class="control-label"></label>
+                <input asp-for="Category.Description" class="form-control" id="des" />
+                <span asp-validation-for="Category.Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button type="button" value="Save" onclick="UpdateBook()" class="btn btn-primary">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a href="https://localhost:7115/Categories" > Back to List</a>
+</div>
+<script type="text/javascript">
+    function UpdateBook() {
+        var book = {
+            categoryName: $('#cate').val(),
+            description: $('#des').val(),
+        };
+        var id = $('#id').val();
+        if (book) {
+            $.ajax({
+                url: "https://localhost:7233/api/category-management/categories/" + id,
+                type: "PUT",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(book),
+                success: function (result, status, xhr) {
+                    window.location.href = "https://localhost:7115/Categories";
+                },
+                error: function (xhr, status, error) {
+                    console.log(xhr)
+                }
+            });
+        }
+    }
+</script>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

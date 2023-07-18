@@ -1,0 +1,68 @@
+﻿@page
+@model BookStore.Client.Pages.BookBorrowing.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+<h4>BookBorrowingRequest</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="BookBorrowingRequest.BookBorrowingRequestId" id="id" />
+            <div class="form-group">
+                <label asp-for="BookBorrowingRequest.UserApprovedName" class="control-label"></label>
+                <input asp-for="BookBorrowingRequest.UserApprovedName" id="approvedName" class="form-control" />
+                <span asp-validation-for="BookBorrowingRequest.UserApprovedName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BookBorrowingRequest.Status" class="control-label"></label>
+                <select asp-for="BookBorrowingRequest.Status" asp-items="ViewBag.Status" id="status" class="form-control"></select>
+                <span asp-validation-for="BookBorrowingRequest.Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button type="button" onclick="UpdateBook()">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a href="https://localhost:7115/BookBorrowing">Back to List</a>
+</div>
+<script type="text/javascript">
+    function UpdateBook() {
+
+        var book = {
+            userApprovedName: $('#approvedName').val(),
+            requestStatus: parseInt($('#status').val()),
+        };
+        console.log($('#status').val());
+        var id = $('#id').val();
+        if (book) {
+            $.ajax({
+                url: "https://localhost:7233/api/book-management/book-borrowing/" + id,
+                type: "PUT",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(book),
+                success: function (result, status, xhr) {
+                    window.location.href = "https://localhost:7115/BookBorrowing";
+                },
+                error: function (xhr, status, error) {
+                    console.log(xhr)
+                }
+            });
+        }
+    }
+</script>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

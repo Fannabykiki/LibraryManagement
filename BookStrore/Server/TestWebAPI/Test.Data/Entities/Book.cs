@@ -9,7 +9,10 @@ namespace BookStore.Data.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int BookId { get; set; }
         public string BookName { get; set; }
-        public List<BookCategoryDetail> BookCategoryDetails { get; set; }
+        public string PublisherName { get; set; }
+        public DateTime PublishedDate { get; set; }
+        public int CategoryId { get; set; }
+        public Category Category { get; set; }
         public List<BookBorrowingRequestDetails> BookBorrowingRequestDetails { get; set; }
     }
 }

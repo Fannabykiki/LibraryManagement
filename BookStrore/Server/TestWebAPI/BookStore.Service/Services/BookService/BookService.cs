@@ -4,354 +4,291 @@ using BookStore.API.DTOs;
 using BookStore.Common.DTOs.Book.BookBorrowingRequest;
 using BookStore.Common.DTOs.Book;
 using BookStore.Common.DTOs.Book.BorrowingRequestDetail;
+using AutoMapper;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace BookStore.API.Services.BookService
 {
-    public class BookService : IBookService
-    {
-        private readonly IBookRepository _bookRepository;
-        private readonly ICategoryRepository _categoryRepository;
-        private readonly IBookCategoryDetail _detailRepository;
-        private readonly IBookRequestRepository _bookRequestRepository;
-        private readonly IBorrowingDetailRepository _borrowingDetailRepository;
-        private readonly IUserRepository _userRepository;
-        private readonly IShippingRepository _shippingRepository;
-        private readonly IShippingDetailRepository _shippingDetailRepository;
+	public class BookService : IBookService
+	{
+		private readonly IBookRepository _bookRepository;
+		private readonly ICategoryRepository _categoryRepository;
+		private readonly IBookRequestRepository _bookRequestRepository;
+		private readonly IBorrowingDetailRepository _borrowingDetailRepository;
+		private readonly IUserRepository _userRepository;
+		private readonly IShippingRepository _shippingRepository;
+		private readonly IShippingDetailRepository _shippingDetailRepository;
+		private readonly IMapper _mapper;
 
-        public BookService(IBookRepository bookRepository, ICategoryRepository categoryRepository, IBookCategoryDetail bookCategoryDetail, IBookRequestRepository bookRequestRepository, IBorrowingDetailRepository borrowingDetailRepository, IShippingRepository shippingRepository, IShippingDetailRepository shippingDetailRepository)
-        {
-            _bookRepository = bookRepository;
-            _categoryRepository = categoryRepository;
-            _detailRepository = bookCategoryDetail;
-            _bookRequestRepository = bookRequestRepository;
-            _borrowingDetailRepository = borrowingDetailRepository;
-            _shippingRepository = shippingRepository;
-            _shippingDetailRepository = shippingDetailRepository;
-        }
+		public BookService(IBookRepository bookRepository, ICategoryRepository categoryRepository, IBookRequestRepository bookRequestRepository, IBorrowingDetailRepository borrowingDetailRepository, IShippingRepository shippingRepository, IShippingDetailRepository shippingDetailRepository, IMapper mapper)
+		{
+			_bookRepository = bookRepository;
+			_categoryRepository = categoryRepository;
+			_bookRequestRepository = bookRequestRepository;
+			_borrowingDetailRepository = borrowingDetailRepository;
+			_shippingRepository = shippingRepository;
+			_shippingDetailRepository = shippingDetailRepository;
+			_mapper = mapper;
+		}
 
-        public async Task<AddBookResponse> CreateAsync(AddBookRequest addBookRequest)
-        {
-            using var transaction = _bookRepository.DatabaseTransaction();
-            try
-            {
-                var book = new Books
-                {
-                    BookName = addBookRequest.BookName
-                };
-                var newBook = await _bookRepository.CreateAsync(book);
+		public async Task<AddBookResponse> CreateAsync(AddBookRequest addBookRequest)
+		{
+			using var transaction = _bookRepository.DatabaseTransaction();
+			try
+			{
+				var book = new Books
+				{
+					BookName = addBookRequest.BookName,
+					PublishedDate = addBookRequest.PublishedDate,
+					PublisherName = addBookRequest.PublisherName,
+					CategoryId = addBookRequest.CategoryId,
+				};
+				var newBook = await _bookRepository.CreateAsync(book);
 
-                foreach (var categoryId in addBookRequest.CategoryIds)
-                {
-                    var category = await _categoryRepository.GetAsync(s => s.CategoryId == categoryId);
-                    if (category == null)
-                    {
-                        return new AddBookResponse
-                        {
-                            IsSucced = false,
-                        };
-                    }
-                    if (category != null)
-                    {
-                        var newBookCategoryDetail = new BookCategoryDetail
-                        {
-                            Book = newBook,
-                            Category = category
-                        };
-                        _detailRepository.CreateAsync(newBookCategoryDetail);
-                    }
-                }
-                _bookRepository.SaveChanges();
-                _detailRepository.SaveChanges();
+				_bookRepository.SaveChanges();
+				transaction.Commit();
 
-                transaction.Commit();
+				return new AddBookResponse
+				{
+					IsSucced = true
+				};
+			}
+			catch (Exception)
+			{
+				transaction.RollBack();
 
-                return new AddBookResponse
-                {
-                    BookId = newBook.BookId,
-                    BookName = newBook.BookName,
-                    CategoryIds = addBookRequest.CategoryIds,
-                    IsSucced = true
-                };
-            }
-            catch (Exception)
-            {
-                transaction.RollBack();
+				return new AddBookResponse
+				{
+					IsSucced = false,
+				};
+			}
+		}
 
-                return new AddBookResponse
-                {
-                    IsSucced = false,
-                };
-            }
-        }
+		public async Task<CreateBorrowingBookResponse> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest)
+		{
+			using var transaction = _bookRequestRepository.DatabaseTransaction();
+			try
+			{
+				var newBookBorrowingRequest = new BookBorrowingRequest
+				{
+					UserRquestId = createBookBorrowingRequest.UserRequestId,
+					RequestDate = DateTime.UtcNow,
+					Status = Common.Enums.RequestStatusEnum.Pending
+				};
 
-        public async Task<CreateBorrowingBookResponse> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest)
-        {
-            using var transaction = _bookRequestRepository.DatabaseTransaction();
-            try
-            {
-                var newBookBorrowingRequest = new BookBorrowingRequest
-                {
-                    UserRquestId = createBookBorrowingRequest.UserRequestId,
-                    RequestDate = DateTime.UtcNow,
-                    Status = Common.Enums.RequestStatusEnum.Pending
-                };
+				var newBookRequest = await _bookRequestRepository.CreateAsync(newBookBorrowingRequest);
 
-                var newBookRequest = await _bookRequestRepository.CreateAsync(newBookBorrowingRequest);
+				_bookRequestRepository.SaveChanges();
 
-                _bookRequestRepository.SaveChanges();
+				foreach (var bookId in createBookBorrowingRequest.BookIds)
+				{
+					var requestDetail = new BookBorrowingRequestDetails
+					{
+						BookId = bookId,
+						BookBorrowingRequestId = newBookRequest.BookBorrowingRequestId,
+					};
+					await _borrowingDetailRepository.CreateAsync(requestDetail);
 
-                foreach (var bookId in createBookBorrowingRequest.BookIds)
-                {
-                    var requestDetail = new BookBorrowingRequestDetails
-                    {
-                        BookId = bookId,
-                        BookBorrowingRequestId = newBookRequest.BookBorrowingRequestId,
-                    };
-                    await _borrowingDetailRepository.CreateAsync(requestDetail);
+					_borrowingDetailRepository.SaveChanges();
+				}
+				transaction.Commit();
 
-                    _borrowingDetailRepository.SaveChanges();
-                }
-                transaction.Commit();
+				return new CreateBorrowingBookResponse
+				{
+					IsSucced = true,
+				};
+			}
+			catch (Exception)
+			{
+				transaction.RollBack();
 
-                return new CreateBorrowingBookResponse
-                {
-                    IsSucced = true,
-                };
-            }
-            catch (Exception)
-            {
-                transaction.RollBack();
+				return new CreateBorrowingBookResponse
+				{
+					IsSucced = false,
+				};
+			}
+		}
 
-                return new CreateBorrowingBookResponse
-                {
-                    IsSucced = false,
-                };
-            }
-        }
+		public async Task<bool> DeleteAsync(int id)
+		{
+			using (var transaction = _bookRepository.DatabaseTransaction())
+				try
+				{
+					var product = await _bookRepository.GetAsync(s => s.BookId == id, x => x.Category);
+					if (product == null)
+					{
+						return false;
+					}
 
-        public async Task<bool> DeleteAsync(int id)
-        {
-            using (var transaction = _bookRepository.DatabaseTransaction())
-                try
-                {
-                    var product = await _bookRepository.GetAsync(s => s.BookId == id);
-                    if (product == null)
-                    {
-                        return false;
-                    }
+					_bookRepository.DeleteAsync(product);
 
-                    _bookRepository.DeleteAsync(product);
+					_bookRepository.SaveChanges();
 
-                    _bookRepository.SaveChanges();
+					transaction.Commit();
 
-                    transaction.Commit();
+					return true;
+				}
+				catch (Exception)
+				{
+					transaction.RollBack();
 
-                    return true;
-                }
-                catch (Exception)
-                {
-                    transaction.RollBack();
+					return false;
+				}
+		}
 
-                    return false;
-                }
-        }
+		public async Task<List<BookViewModel>> GetAllBookAsync()
+		{
+			var books = await _bookRepository.GetAllWithOdata(x => true, x => x.Category);
 
-        public async Task<IEnumerable<Books>> GetAllBookAsync()
-        {
-            return await _bookRepository.GetAllWithOdata( x => true);
-        }
+			return _mapper.Map<List<BookViewModel>>(books);
 
-        public async Task<IEnumerable<BookBorrowingRequest>> GetAllBookRequestAsync()
-        {
-            return await _bookRequestRepository.GetAllWithOdata(x => true);
-        }
+		}
 
-        public async Task<BookViewModel> GetBookByIdAsync(int id)
-        {
-            using (var transaction = _categoryRepository.DatabaseTransaction())
-                try
-                {
-                    var result = await _bookRepository.GetAsync(c => c.BookId == id);
+		public async Task<IEnumerable<BorrowingRequestViewModel>> GetAllBookRequestAsync()
+		{
+			var borrow = await _bookRequestRepository.GetAllWithOdata(x => true, x => x.User);
 
-                    if (result == null)
-                    {
-                        return null;
-                    }
+			return _mapper.Map<List<BorrowingRequestViewModel>>(borrow);
+		}
 
-                    return new BookViewModel
-                    {
-                        BookId = result.BookId,
-                        BookName = result.BookName,
-                        CategoryIds = _detailRepository.GetAll(x => x.BookId == id).Select(x => x.CategoryId).ToList()
-                    };
-                }
-                catch
-                {
-                    transaction.RollBack();
+		public async Task<BookViewModel> GetBookByIdAsync(int id)
+		{
+			using (var transaction = _categoryRepository.DatabaseTransaction())
+				try
+				{
+					var result = await _bookRepository.GetAsync(c => c.BookId == id, x => x.Category);
 
-                    return null;
-                }
-        }
+					if (result == null)
+					{
+						return null;
+					}
 
-        public async Task<BorrowingDetailResponse> GetBorrowingDetailByRequestIdAsync(int id)
-        {
-            using (var transaction = _borrowingDetailRepository.DatabaseTransaction())
-                try
-                {
-                    var result = await _borrowingDetailRepository.GetAllWithOdata(c => c.BookBorrowingRequestId == id);
-                    if (result == null)
-                    {
-                        return new BorrowingDetailResponse
-                        {
-                            IsSucced = false
-                        };
-                    }
-                    foreach (var item in result)
-                    {
-                        return new BorrowingDetailResponse
-                        {
-                            BookId = item.BookId,
-                            RequestId = id
-                        };
-                    }
-                    return new BorrowingDetailResponse
-                    {
-                        IsSucced = true
-                    };
-                }
-                catch
-                {
-                    transaction.RollBack();
+					return new BookViewModel
+					{
+						BookId = result.BookId,
+						BookName = result.BookName,
+						PublisherName = result.PublisherName,
+						PublishedDate = result.PublishedDate,
+						CategoryName = result.Category.CategoryName,
+					};
+				}
+				catch
+				{
+					transaction.RollBack();
 
-                    return new BorrowingDetailResponse
-                    {
-                        IsSucced = false
-                    };
-                }
-        }
+					return null;
+				}
+		}
 
-        public async Task<IEnumerable<GetBookResponse>> GetRequestByUserId(User user)
-        {
-            var transaction = _bookRequestRepository.DatabaseTransaction();
-            try
-            {
-                var result = (await _bookRequestRepository.GetAllWithOdata(x => x.UserRquestId == user.UserId)).ToList();
-                if (result == null)
-                {
-                    return null;
-                }
+		public async Task<IEnumerable<DetailViewModel>> GetBorrowingDetailByRequestIdAsync(int id)
+		{
+			var result = await _borrowingDetailRepository.GetAllWithOdata(c => c.BookBorrowingRequestId == id, x => x.Book);
 
-                return result.Select(bookRequest => new GetBookResponse
-                {
-                    RequestDate = bookRequest.RequestDate,
-                    Status = bookRequest.Status,
-                    UserRquestId = user.UserId,
-                });
-            }
-            catch
-            {
-                transaction.RollBack();
+			return _mapper.Map<List<DetailViewModel>>(result);
+		}
 
-                return null;
-            }
-        }
-        public async Task<UpdateBookResponse> UpdateAsync(int id, UpdateBookRequest updateBookRequest)
-        {
-            using var transaction = _bookRepository.DatabaseTransaction();
-            try
-            {
-                var book = await _bookRepository.GetAsync(s => s.BookId == id);
-                if (book == null)
-                {
-                    return new UpdateBookResponse
-                    {
-                        IsSucced = false,
-                    };
-                }
+		public async Task<IEnumerable<GetBookResponse>> GetRequestByUserId(User user)
+		{
+			var transaction = _bookRequestRepository.DatabaseTransaction();
+			try
+			{
+				var result = (await _bookRequestRepository.GetAllWithOdata(x => x.UserRquestId == user.UserId, null)).ToList();
+				if (result == null)
+				{
+					return null;
+				}
 
-                book.BookName = updateBookRequest.BookName;
+				return result.Select(bookRequest => new GetBookResponse
+				{
+					RequestDate = bookRequest.RequestDate,
+					Status = bookRequest.Status,
+					UserRquestId = user.UserId,
+				});
+			}
+			catch
+			{
+				transaction.RollBack();
 
-                var newBook = await _bookRepository.UpdateAsync(book);
+				return null;
+			}
+		}
+		public async Task<UpdateBookResponse> UpdateAsync(int id, UpdateBookRequest updateBookRequest)
+		{
+			using var transaction = _bookRepository.DatabaseTransaction();
+			try
+			{
+				var book = await _bookRepository.GetAsync(s => s.BookId == id, x => x.Category);
+				if (book == null)
+				{
+					return new UpdateBookResponse
+					{
+						IsSucced = false,
+					};
+				}
 
-                _bookRepository.SaveChanges();
+				book.BookName = updateBookRequest.BookName;
+				book.PublishedDate = updateBookRequest.PublishedDate;
+				book.PublisherName = updateBookRequest.PublisherName;
+				book.CategoryId = updateBookRequest.CategoryId;
 
-                var bookCategories = await _detailRepository.GetAllWithOdata(s => s.BookId == id);
-                foreach (var item in bookCategories)
-                {
-                    await _detailRepository.DeleteAsync(item);
-                    _detailRepository.SaveChanges();
+				await _bookRepository.UpdateAsync(book);
+				_bookRepository.SaveChanges();
+				transaction.Commit();
 
-                }
-                foreach (var categoryId in updateBookRequest.CategoryIds)
-                {
-                    var category = await _categoryRepository.GetAsync(s => s.CategoryId == categoryId);
+				return new UpdateBookResponse
+				{
+					IsSucced = true,
+				};
+			}
+			catch (Exception)
+			{
+				transaction.RollBack();
 
-                    var newBookCategoryDetail = new BookCategoryDetail
-                    {
-                        Book = newBook,
-                        Category = category
-                    };
-                    await _detailRepository.CreateAsync(newBookCategoryDetail);
-                }
-                _detailRepository.SaveChanges();
+				return new UpdateBookResponse
+				{
+					IsSucced = false,
+				};
+			}
+		}
 
-                transaction.Commit();
+		public async Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(UpdateBorrowingRequest updateBorrowingRequest, int id)
+		{
+			using (var transaction = _bookRepository.DatabaseTransaction())
+			{
+				try
+				{
+					var updateRequest = await _bookRequestRepository.GetAsync(s => s.BookBorrowingRequestId == id, x => x.User);
+					if (updateRequest == null)
+					{
+						return new UpdateBookBorrowingResponse
+						{
+							IsSucced = false,
+						};
+					}
 
-                return new UpdateBookResponse
-                {
-                    IsSucced = true,
-                };
-            }
-            catch (Exception)
-            {
-                transaction.RollBack();
+					updateRequest.Status = updateBorrowingRequest.RequestStatus;
+					updateRequest.UserApprovedName = updateBorrowingRequest.UserApprovedName;
 
-                return new UpdateBookResponse
-                {
-                    IsSucced = false,
-                };
-            }
-        }
+					await _bookRequestRepository.UpdateAsync(updateRequest);
+					_bookRequestRepository.SaveChanges();
 
-        public async Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(UpdateBorrowingRequest updateBorrowingRequest, int id)
-        {
-            using (var transaction = _bookRepository.DatabaseTransaction())
-            {
-                try
-                {
-                    var updateRequest = await _bookRequestRepository.GetAsync(s => s.BookBorrowingRequestId == id);
-                    if (updateRequest == null)
-                    {
-                        return new UpdateBookBorrowingResponse
-                        {
-                            IsSucced = false,
-                        };
-                    }
+					transaction.Commit();
 
-                    updateRequest.Status = updateBorrowingRequest.RequestStatus;
-                    updateRequest.UserApprovedName = updateBorrowingRequest.UserApprovedName;
+					return new UpdateBookBorrowingResponse
+					{
+						IsSucced = true,
+					};
+				}
+				catch (Exception)
+				{
+					transaction.RollBack();
 
-                    await _bookRequestRepository.UpdateAsync(updateRequest);
-                    _bookRequestRepository.SaveChanges();
-
-                    transaction.Commit();
-
-                    return new UpdateBookBorrowingResponse
-                    {
-                        IsSucced = true,
-                    };
-                }
-                catch (Exception)
-                {
-                    transaction.RollBack();
-
-                    return new UpdateBookBorrowingResponse
-                    {
-                        IsSucced = false,
-                    };
-                }
-            }
-        }
-
-    }
+					return new UpdateBookBorrowingResponse
+					{
+						IsSucced = false,
+					};
+				}
+			}
+		}
+	}
 }

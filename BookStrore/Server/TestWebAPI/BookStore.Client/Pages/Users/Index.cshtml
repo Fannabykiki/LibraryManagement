@@ -1,0 +1,120 @@
+﻿@page
+@model BookStore.Client.Pages.Users.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+<head>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+<p>
+	<a href="" onclick="LoadData()">Back to full list</a>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.User[0].UserName)
+				<input type="text" name="Title" placeholder="Input username" id="title" />
+				<button type="button" onclick="onSearch()">Search</button>
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.User[0].Password)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.User[0].Address)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.User[0].PhoneNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.User[0].Role)
+            </th>
+            <th>
+				Edit
+			</th>
+			<th>
+				Delete
+			</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<script type="text/javascript">
+	$(document).ready(function () {
+		LoadData();
+	});
+
+	function LoadData() {
+		$("table tbody").html("");
+		$.ajax({
+			url: "https://localhost:7233/api/user-management/users",
+			type: "GET",
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			success: function (result, status, xhr) {
+				$.each(result, function (index, value) {
+					var appendElement = $("<tr>");
+					appendElement.append($("<td>").html(value["userName"]));
+					appendElement.append($("<td>").html(value["password"]));
+					appendElement.append($("<td>").html(value["address"]));
+					appendElement.append($("<td>").html(value["phoneNumber"]));
+					var statusText = "";
+					if (value["role"] === 0) {
+						statusText = "Admin";
+					} else if (value["role"] === 1) {
+						statusText = "Normal User";
+					}
+						appendElement.append($("<td>").html(statusText));
+					appendElement.append($("<td>").html("<a href=\"Users/Edit?id=" + value["userId"] + "\">Edit</a>"));
+					appendElement.append($("<td>").html("<a href=\"Users/Delete?id=" + value["userId"] + "\">Delete</a>"));
+					$("table tbody").append(appendElement);
+				});
+			},
+			error: function (xhr, status, error) {
+				console.log(xhr);
+			}
+		});
+	}
+
+
+	function onSearch() {
+		var title = $('#title').val();
+		$("table tbody").html("");
+		$.ajax({
+			url: "https://localhost:7233/api/user-management/users?$filter=contains(userName," + "'" + title + "')",
+			type: "GET",
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			success: function (result, status, xhr) {
+				$("table tbody").html("");
+				$.each(result, function (index, value) {
+					var appendElement = $("<tr>");
+					appendElement.append($("<td>").html(value["userName"]));
+					appendElement.append($("<td>").html(value["password"]));
+					appendElement.append($("<td>").html(value["address"]));
+					appendElement.append($("<td>").html(value["phoneNumber"]));
+					var statusText = "";
+					if (value["role"] === 0) {
+						statusText = "Admin";
+					} else if (value["status"] === 1) {
+						statusText = "Normal User";
+					}
+						appendElement.append($("<td>").html(statusText))
+					appendElement.append($("<td>").html("<a href=\"Users/Edit?id=" + value["userId"] + "\">Edit</a>"));
+					appendElement.append($("<td>").html("<a href=\"Users/Delete?id=" + value["userId"] + "\">Delete</a>"));
+					$("table tbody").append(appendElement);
+				});
+			},
+			error: function (xhr, status, error) {
+				console.log(xhr)
+			}
+		});
+		return false;
+	}
+</script>
