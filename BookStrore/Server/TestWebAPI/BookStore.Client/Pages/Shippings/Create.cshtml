@@ -2,47 +2,94 @@
 @model BookStore.Client.Pages.Shippings.CreateModel
 
 @{
-    ViewData["Title"] = "Create";
+	ViewData["Title"] = "Create";
 }
-
+<head>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
 <h1>Create</h1>
-
 <h4>Shipping</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Shipping.ReceiverName" class="control-label"></label>
-                <input asp-for="Shipping.ReceiverName" class="form-control" />
-                <span asp-validation-for="Shipping.ReceiverName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Shipping.BookBorrowingRequestId" class="control-label"></label>
-                <select asp-for="Shipping.BookBorrowingRequestId" class ="form-control" asp-items="ViewBag.BookBorrowingRequestId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Shipping.CreateDate" class="control-label"></label>
-                <input asp-for="Shipping.CreateDate" class="form-control" />
-                <span asp-validation-for="Shipping.CreateDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Shipping.Status" class="control-label"></label>
-                <select asp-for="Shipping.Status" class="form-control"></select>
-                <span asp-validation-for="Shipping.Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+	<div class="col-md-4">
+		<form method="post">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<div class="form-group">
+				<label asp-for="Shipping.ReceiverName" class="control-label"></label>
+				<input asp-for="Shipping.ReceiverName" class="form-control" id="receiverName" />
+				<span asp-validation-for="Shipping.ReceiverName" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Shipping.BookBorrowingRequestId" class="control-label"></label>
+				<select asp-for="Shipping.BookBorrowingRequestId" id="requestId" class="form-control" asp-items="ViewBag.ShipId"></select>
+			</div>
+			<div class="form-group">
+				<label asp-for="Shipping.CreateDate" class="control-label"></label>
+				<input asp-for="Shipping.CreateDate" class="form-control" id="createDate" />
+				<span asp-validation-for="Shipping.CreateDate" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label>Company shipping </label>
+				<input class="form-control" id="company"/>
+				<span asp-validation-for="Shipping.Status" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label>Address </label>
+				<input class="form-control" id="address" />
+				<span asp-validation-for="Shipping.Status" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label>PhoneNumber </label>
+				<input class="form-control" id="phone" />
+				<span asp-validation-for="Shipping.Status" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label  class="control-label">Shipping Date</label>
+				<input class="form-control" id="shippingDate" />
+				<span asp-validation-for="Shipping.CreateDate" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<button type="button" value="Create" onclick="createNewBook()" class="btn btn-primary">Create</button>
+			</div>
+		</form>
+	</div>
 </div>
 
 <div>
-    <a asp-page="Index">Back to List</a>
+	<a href="https://localhost:7115/Book">Back to List</a>
 </div>
+<script type="text/javascript">
+	function createNewBook() {
+		var book = {
+			receiverName: $('#receiverName').val(),
+			bookBorrowingRequestId: $('#requestId').val(),
+			createDate: new Date($('#createDate').val()),
+			companyName: $('#company').val(),
+			address: $('#address').val(),
+			phoneNumber: $('#phone').val(),
+			shippingDate: new Date($('#shippingDate').val()),
+		};
 
+		if (book) {
+			console.log(book);
+			$.ajax({
+				url: "https://localhost:7233/api/shipping-management/shippings",
+				type: "POST",
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				data: JSON.stringify(book),
+				success: function (result, status, xhr) {
+					window.location.href = "https://localhost:7115/Shippings";
+				},
+				error: function (xhr, status, error) {
+					console.log(xhr)
+				}
+			});
+		}
+	}
+</script>
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
 }

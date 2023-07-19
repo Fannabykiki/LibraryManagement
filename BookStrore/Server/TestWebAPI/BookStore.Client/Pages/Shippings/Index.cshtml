@@ -2,7 +2,7 @@
 @model BookStore.Client.Pages.Shippings.IndexModel
 
 @{
-    ViewData["Title"] = "Index";
+	ViewData["Title"] = "Index";
 }
 <head>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
@@ -11,25 +11,28 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-page="Create">Create New</a>
+	<a asp-page="Create">Create New</a>
 </p>
 <table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Shipping[0].ReceiverName)
-            </th>
+	<thead>
+		<tr>
+			<th>
+				@Html.DisplayNameFor(model => model.Shipping[0].ReceiverName)
+			</th>
 			<th>
 				@Html.DisplayNameFor(model => model.Shipping[0].BookBorrowingRequestId)
 			</th>
-            <th>
-                @Html.DisplayNameFor(model => model.Shipping[0].CreateDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Shipping[0].Status)
-            </th>
-            <th>
+			<th>
+				@Html.DisplayNameFor(model => model.Shipping[0].CreateDate)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Shipping[0].Status)
+			</th>
+			<th>
 				Edit
+			</th>
+			<th>
+				Update status
 			</th>
 			<th>
 				Detail
@@ -37,10 +40,10 @@
 			<th>
 				Delete
 			</th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
+		</tr>
+	</thead>
+	<tbody>
+	</tbody>
 </table>
 <script type="text/javascript">
 	$(document).ready(function () {
@@ -77,6 +80,7 @@
 					}
 					appendElement.append($("<td>").html(statusText));
 					appendElement.append($("<td>").html("<a href=\"Shippings/Edit?id=" + value["shippingId"] + "\">Edit</a>"));
+					appendElement.append($("<td>").html("<a href=\"Shippings/EditStatus?id=" + value["shippingId"] + "\">Update status</a>"));
 					appendElement.append($("<td>").html("<a href=\"Shippings/Details?id=" + value["shippingId"] + "\">Details</a>"));
 					appendElement.append($("<td>").html("<a href=\"Shippings/Delete?id=" + value["shippingId"] + "\">Delete</a>"));
 					$("table tbody").append(appendElement);
@@ -121,6 +125,7 @@
 					}
 					appendElement.append($("<td>").html(statusText));
 					appendElement.append($("<td>").html("<a href=\"Shippings/Edit?id=" + value["shippingId"] + "\">Edit</a>"));
+					appendElement.append($("<td>").html("<a href=\"Shippings/EditStatus?id=" + value["shippingId"] + "\">Update status</a>"));
 					appendElement.append($("<td>").html("<a href=\"Shippings/Details?id=" + value["shippingId"] + "\">Details</a>"));
 					appendElement.append($("<td>").html("<a href=\"Shippings/Delete?id=" + value["shippingId"] + "\">Delete</a>"));
 					$("table tbody").append(appendElement);

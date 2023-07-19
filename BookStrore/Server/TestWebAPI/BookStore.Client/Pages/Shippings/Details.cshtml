@@ -6,32 +6,78 @@
 }
 
 <h1>Details</h1>
+<head>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
 <div>
     <h4>Shipping</h4>
     <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Shipping.ReceiverName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Shipping.ReceiverName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Shipping.CreateDate)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Shipping.CreateDate)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Shipping.Status)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Shipping.Status)
-        </dd>
-    </dl>
+	<div>
+		<table class="table">
+			<thead>
+				<input type="hidden" asp-for="Shipping.ShippingId" id="id" />
+				<tr>
+					<th>
+						Address
+					</th>
+					<th>
+						Company Shipping
+					</th>
+					<th>
+						Phone Number
+					</th>
+					<th>
+						Shipping Date
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
 </div>
 <div>
-    <a asp-page="./Edit" asp-route-id="@Model.Shipping?.ShippingId">Edit</a> |
     <a asp-page="./Index">Back to List</a>
 </div>
+<script type="text/javascript">
+	$(document).ready(function () {
+		LoadData();
+	});
+
+	function LoadData() {
+		var id = $('#id').val();
+		$("table tbody").html("");
+		$.ajax({
+			url: "https://localhost:7233/api/shipping-management/shippings/" + id,
+			type: "GET",
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			success: function (result, status, xhr) {
+				console.log(result)
+				$.each(result, function (index, value) {
+					var appendElement = $("<tr>");
+					if (value["shippingDate"] === null) {
+						appendElement.append($("<td>").html(" "));
+					} else{
+					var publishedDate = moment(value["shippingDate"]).format("DD/MM/YYYY");
+					if (moment(publishedDate, "DD/MM/YYYY", true).isValid()) {
+						appendElement.append($("<td>").html(publishedDate));
+					} else {
+						appendElement.append($("<td>").html(" "));
+					}
+					}
+					appendElement.append($("<td>").html(value["address"]));
+					appendElement.append($("<td>").html(value["companyName"]));
+					appendElement.append($("<td>").html(value["phoneNumber"]));
+				
+					$("table tbody").append(appendElement);
+				});
+			},
+			error: function (xhr, status, error) {
+				console.log(xhr);
+			}
+		});
+	}
+</script>

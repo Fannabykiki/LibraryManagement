@@ -1,0 +1,57 @@
+﻿@page
+@model BookStore.Client.Pages.Shippings.EditStatusModel
+
+@{
+    ViewData["Title"] = "EditStatus";
+}
+
+<h1>Edit Status</h1>
+
+<h4>Shipping</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Shipping.ShippingId" id="id"/>
+            <div class="form-group">
+                <label asp-for="Shipping.Status" class="control-label"></label>
+                <select asp-for="Shipping.Status" id="status" asp-items="ViewBag.Status" class="form-control"></select>
+                <span asp-validation-for="Shipping.Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button type="button" value="Save" onclick="UpdateBook()" class="btn btn-primary">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a href="https://localhost:7115/Shippings"> Back to List</a>
+</div>
+<script type="text/javascript">
+    function UpdateBook() {
+        var book = {
+            requestStatus: parseInt($('#status').val()),
+        };
+        var id = $('#id').val();
+        if (book) {
+            $.ajax({
+                url: "https://localhost:7233/api/shipping-management/shippings/" + id,
+                type: "PUT",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(book),
+                success: function (result, status, xhr) {
+                    window.location.href = "https://localhost:7115/Shippings";
+                },
+                error: function (xhr, status, error) {
+                    console.log(xhr)
+                }
+            });
+        }
+    }
+</script>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

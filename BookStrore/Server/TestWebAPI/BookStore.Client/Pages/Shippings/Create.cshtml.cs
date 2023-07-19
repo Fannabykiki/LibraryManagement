@@ -21,7 +21,8 @@ namespace BookStore.Client.Pages.Shippings
 
         public IActionResult OnGet()
         {
-            return Page();
+			ViewData["ShipId"] = new SelectList(_context.BookBorrowingRequests, "BookBorrowingRequestId", "BookBorrowingRequestId");
+			return Page();
         }
 
         [BindProperty]
