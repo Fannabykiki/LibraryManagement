@@ -30,14 +30,15 @@ namespace Book.API.Controllers
 
 		[EnableQuery]
         [HttpGet("books")]
+		[Authorize(Roles = UserRoles.Admin)]
 		public async Task<ActionResult<IQueryable<BookViewModel>>> GetAllBook()
 		{
 			var result = await _bookService.GetAllBookAsync();
 			if (result == null) return StatusCode(500);
 			return Ok(result);
 		}
-        
-        [Authorize(Roles = "Admin")]
+
+        [Authorize(Roles = UserRoles.Admin)]
         [HttpPost("books")]
 		public async Task<IActionResult> Create([FromBody] AddBookRequest addBook)
 		{

@@ -1,7 +1,15 @@
 ﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
 @{
+    var userId = HttpContextAccessor.HttpContext.Session.GetString("userId");
     var userName = HttpContextAccessor.HttpContext.Session.GetString("user");
     var role = HttpContextAccessor.HttpContext.Session.GetString("role");
+    string url = "";
+    if(userId != null)
+    {
+        var UserId = userId.Trim('"').Replace("\\", "");
+        url = "https://localhost:7115/Users/EditProfle?id=" + UserId;
+    }
+    
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -24,24 +32,39 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Book/Index">Book</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Categories/Index">Category</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/BookBorrowing/Index">Book Borrowing</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Users/Index">User</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Shippings/Index">Shipping</a>
-                        </li>
+                      
+                        @if (role == "\"Admin\"")
+                        {   
+                            
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Book/Index">Book</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Categories/Index">Category</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/BookBorrowing/Index">Book Borrowing</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Users/Index">User</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Shippings/Index">Shipping</a>
+                            </li>
+                        }
+                        else if (role == "\"User\"")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="@url">Edit Profile</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/BorowingRequest">Borrowing Request</a>
+                            </li>
+                        }
                         @if(userName == null)
                         {
                             <li class="nav-item">

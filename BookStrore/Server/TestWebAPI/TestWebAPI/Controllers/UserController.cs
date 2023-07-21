@@ -59,7 +59,7 @@ namespace BookStore.API.Controllers
 			return Ok(result);
 		}
 
-		[Authorize(Roles = UserRoles.Admin)]
+		[Authorize]
 		[HttpPut("users/{id}")]
 		public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserRequest updateUserRequest)
 		{

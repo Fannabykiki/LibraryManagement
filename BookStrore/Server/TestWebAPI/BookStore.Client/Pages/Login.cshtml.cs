@@ -49,6 +49,7 @@ namespace BookStore.Client.Pages
                 Response.Cookies.Append("jwt", JwtToken);
                 HttpContext.Session.SetString("user", JsonSerializer.Serialize(loginResponse.UserName));
                 HttpContext.Session.SetString("role", JsonSerializer.Serialize(loginResponse.Role));
+                HttpContext.Session.SetString("userId", JsonSerializer.Serialize(loginResponse.UserId));
                 return RedirectToPage("/Index");
             }
             else

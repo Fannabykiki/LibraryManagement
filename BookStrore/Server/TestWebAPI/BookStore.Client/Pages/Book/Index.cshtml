@@ -9,6 +9,7 @@
 <head>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.0/dist/js.cookie.min.js"></script>
 </head>
 <p>
 	<a asp-page="Create">Create New</a>
@@ -49,11 +50,16 @@
 
 	function LoadData() {
 		$("table tbody").html("");
+		var jwt = Cookies.get('jwt');
+
 		$.ajax({
 			url: "https://localhost:7233/api/book-management/books",
 			type: "GET",
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+			},
 			success: function (result, status, xhr) {
 				$.each(result, function (index, value) {
 					var appendElement = $("<tr>");
@@ -85,12 +91,17 @@
 
 	function onSearch() {
 		var title = $('#title').val();
+		var jwt = Cookies.get('jwt');
+
 		$("table tbody").html("");
 		$.ajax({
 			url: "https://localhost:7233/api/book-management/books?$filter=contains(bookName," + "'" + title + "')",
 			type: "GET",
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+			},
 			success: function (result, status, xhr) {
 				$("table tbody").html("");
 				$.each(result, function (index, value) {
