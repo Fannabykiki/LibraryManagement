@@ -4,7 +4,12 @@
 @{
     ViewData["Title"] = "EditStatus";
 }
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.0/dist/js.cookie.min.js"></script>
 
+</head>
 <h1>Edit Status</h1>
 
 <h4>Shipping</h4>
@@ -35,6 +40,8 @@
             requestStatus: parseInt($('#status').val()),
         };
         var id = $('#id').val();
+        var jwt = Cookies.get('jwt');
+
         if (book) {
             $.ajax({
                 url: "https://localhost:7233/api/shipping-management/shippings/" + id,
@@ -42,11 +49,19 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 data: JSON.stringify(book),
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+                },
                 success: function (result, status, xhr) {
                     window.location.href = "https://localhost:7115/Shippings";
                 },
                 error: function (xhr, status, error) {
-                    console.log(xhr)
+                    if (xhr.status == 401) {
+                        alert("You need to login first")
+                        window.location.href = "https://localhost:7115/Login";
+                    } else if (xhr.status == 403) {
+                        window.location.href = "https://localhost:7115/Error";
+                    }
                 }
             });
         }

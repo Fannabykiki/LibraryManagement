@@ -7,6 +7,8 @@
 <head>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.0/dist/js.cookie.min.js"></script>
+
 </head>
 <h1>Index</h1>
 
@@ -51,12 +53,17 @@
 	});
 
 	function LoadData() {
+		var jwt = Cookies.get('jwt');
+
 		$("table tbody").html("");
 		$.ajax({
 			url: "https://localhost:7233/api/shipping-management/shippings",
 			type: "GET",
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+			},
 			success: function (result, status, xhr) {
 				$.each(result, function (index, value) {
 					var appendElement = $("<tr>");
@@ -87,13 +94,20 @@
 				});
 			},
 			error: function (xhr, status, error) {
-				console.log(xhr);
+				if (xhr.status == 401) {
+					alert("You need to login first")
+					window.location.href = "https://localhost:7115/Login";
+				} else if (xhr.status == 403) {
+					window.location.href = "https://localhost:7115/Error";
+				}
 			}
 		});
 	}
 
 
 	function onSearch() {
+		var jwt = Cookies.get('jwt');
+
 		var title = $('#title').val();
 		$("table tbody").html("");
 		$.ajax({
@@ -101,6 +115,9 @@
 			type: "GET",
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+			},
 			success: function (result, status, xhr) {
 				$("table tbody").html("");
 				$.each(result, function (index, value) {
@@ -132,7 +149,12 @@
 				});
 			},
 			error: function (xhr, status, error) {
-				console.log(xhr)
+				if (xhr.status == 401) {
+					alert("You need to login first")
+					window.location.href = "https://localhost:7115/Login";
+				} else if (xhr.status == 403) {
+					window.location.href = "https://localhost:7115/Error";
+				}
 			}
 		});
 		return false;

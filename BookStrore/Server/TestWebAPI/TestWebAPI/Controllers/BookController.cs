@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.OData.Query;
 
 namespace Book.API.Controllers
 {
-	
+	[Authorize]
 	[Route("/api/book-management")]
 	[ApiController]
 	public class BookController : ControllerBase
@@ -29,7 +29,6 @@ namespace Book.API.Controllers
 		}
 
 		[EnableQuery]
-        [AllowAnonymous]
         [HttpGet("books")]
 		public async Task<ActionResult<IQueryable<BookViewModel>>> GetAllBook()
 		{
@@ -71,7 +70,7 @@ namespace Book.API.Controllers
 			return Ok(result);
 		}
 
-		[AllowAnonymous]
+		[Authorize(Roles = UserRoles.Admin)]
 		[HttpGet("books/{id}")]
 		public async Task<IActionResult> GetBookById(int id)
 		{

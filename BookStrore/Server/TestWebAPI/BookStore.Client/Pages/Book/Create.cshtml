@@ -6,6 +6,8 @@
 }
 <head>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.0/dist/js.cookie.min.js"></script>
+
 </head>
 <h1>Create</h1>
 
@@ -55,20 +57,27 @@
 
         if (book) {
             console.log(book);
+            var jwt = Cookies.get('jwt');
             $.ajax({
                 url: "https://localhost:7233/api/book-management/books",
                 type: "POST",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 data: JSON.stringify(book),
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+                },
                 success: function (result, status, xhr) {
-                    if (xhr.status == 401 || xhr.status == 405) {
-                        window.location.href = "https://localhost:7115/Book";
-                    }
                     window.location.href = "https://localhost:7115/Book";
                 },
                 error: function (xhr, status, error) {
-                    console.log(xhr)
+                    var jwt = Cookies.get('jwt');
+                    if (xhr.status == 401) {
+                        alert("You need to login first")
+                        window.location.href = "https://localhost:7115/Login";
+                    } else if (xhr.status == 403) {
+                        window.location.href = "https://localhost:7115/Error";
+                    }
                 }
             });
         }

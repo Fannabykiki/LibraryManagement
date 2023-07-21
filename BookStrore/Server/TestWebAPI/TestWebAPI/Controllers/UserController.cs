@@ -5,6 +5,7 @@ using BookStore.Common.DTOs.User;
 using BookStore.Data.Entities;
 using BookStore.Service.Services.Loggerservice;
 using BookStore.Service.Services.ShippingService;
+using Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,7 @@ using Microsoft.AspNetCore.OData.Query;
 
 namespace BookStore.API.Controllers
 {
-   
+	[Authorize]
     [Route("api/user-management")]
 	[ApiController]
 	public class UserController : ControllerBase
@@ -26,6 +27,7 @@ namespace BookStore.API.Controllers
 			_usersService = usersService;
 		}
 
+		[Authorize(Roles = UserRoles.Admin)]
 		[EnableQuery]
 		[HttpGet("users")]
 		public async Task<ActionResult<IQueryable<User>>> GetAllShipping()
@@ -36,6 +38,7 @@ namespace BookStore.API.Controllers
 			return Ok(result);
 		}
 
+		[Authorize(Roles = UserRoles.Admin)]
 		[HttpPost("users")]
 		public async Task<IActionResult> Create([FromBody] CreateUserRequest createUserRequest)
 		{
@@ -45,6 +48,7 @@ namespace BookStore.API.Controllers
 			return Ok(result);
 		}
 
+		[Authorize(Roles = UserRoles.Admin)]
 		[HttpDelete("users/{id}")]
 		public async Task<IActionResult> Delete(Guid id)
 		{
@@ -55,6 +59,7 @@ namespace BookStore.API.Controllers
 			return Ok(result);
 		}
 
+		[Authorize(Roles = UserRoles.Admin)]
 		[HttpPut("users/{id}")]
 		public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserRequest updateUserRequest)
 		{

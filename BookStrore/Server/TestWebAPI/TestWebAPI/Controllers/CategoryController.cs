@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.OData.Query;
 
 namespace Book.API.Controllers
 {
-    
+    [Authorize]
     [Route("/api/category-management")]
     [ApiController]
     public class CategoryController : ControllerBase
@@ -22,6 +22,7 @@ namespace Book.API.Controllers
             _categoryService = categoryService;
             _logger = logger;
         }
+
         [EnableQuery]
         [HttpGet("categories")]
 		public async Task<ActionResult<IQueryable<Category>>> GetAllCategory()
@@ -31,6 +32,7 @@ namespace Book.API.Controllers
 			return Ok(result);
 		}
 
+		[Authorize(Roles = "Admin")]
 		[HttpPost("categories")]
         public async Task<IActionResult> Add([FromBody] AddCategoryRequest addCategoryRequest)
         {
@@ -40,7 +42,8 @@ namespace Book.API.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("categories/{id}")]
+		[Authorize(Roles = "Admin")]
+		[HttpDelete("categories/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _categoryService.DeleteAsync(id);
@@ -51,7 +54,8 @@ namespace Book.API.Controllers
             return Ok(result);
         }
 
-        [HttpPut("categories/{id}")]
+		[Authorize(Roles = "Admin")]
+		[HttpPut("categories/{id}")]
         public async Task<IActionResult> Update(int Id, [FromBody] UpdateCategoryRequest updateCategoryRequest)
         {
             var result = await _categoryService.UpdateAsync(Id, updateCategoryRequest);

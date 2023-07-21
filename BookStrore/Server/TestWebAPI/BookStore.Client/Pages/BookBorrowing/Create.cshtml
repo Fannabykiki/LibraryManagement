@@ -9,6 +9,8 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/multi-select/0.9.12/css/multi-select.min.css" />
 	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/multi-select/0.9.12/js/jquery.multi-select.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.0/dist/js.cookie.min.js"></script>
+
 </head>
 <h1>Create</h1>
 
@@ -49,6 +51,7 @@
 		};
 
 		if (book) {
+			var jwt = Cookies.get('jwt');
 			console.log(book);
 			$.ajax({
 				url: "https://localhost:7233/api/book-management/book-borrowing",
@@ -56,11 +59,19 @@
 				contentType: "application/json; charset=utf-8",
 				dataType: "json",
 				data: JSON.stringify(book),
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+				},
 				success: function (result, status, xhr) {
 					window.location.href = "https://localhost:7115/BookBorrowing";
 				},
 				error: function (xhr, status, error) {
-					console.log(xhr)
+					if (xhr.status == 401) {
+						alert("You need to login first")
+						window.location.href = "https://localhost:7115/Login";
+					} else if (xhr.status == 403) {
+						window.location.href = "https://localhost:7115/Error";
+					}
 				}
 			});
 		}

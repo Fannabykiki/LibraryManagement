@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.OData.Query;
 namespace BookStore.API.Controllers
 {
 
-    
+	[Authorize]
     [Route("api/shipping-management")]
 	[ApiController]
 	public class ShippingController : ControllerBase
@@ -25,6 +25,7 @@ namespace BookStore.API.Controllers
 			_shippingService = shippingService;
 		}
 
+		[Authorize(Roles = "Admin")]
 		[EnableQuery]
 		[HttpGet("shippings")]
 		public async Task<ActionResult<IQueryable<Shipping>>> GetAllShipping()
@@ -35,6 +36,7 @@ namespace BookStore.API.Controllers
 			return Ok(result);
 		}
 
+		[Authorize(Roles = "Admin")]
 		[HttpPost("shippings")]
 		public async Task<IActionResult> Create([FromBody] CreateShippingRequest createShippingRequest)
 		{
@@ -44,6 +46,7 @@ namespace BookStore.API.Controllers
 			return Ok(result);
 		}
 
+		[Authorize(Roles = "Admin")]
 		[HttpDelete("shippings/{id}")]
 		public async Task<IActionResult> Delete(int id)
 		{
@@ -54,6 +57,7 @@ namespace BookStore.API.Controllers
 			return Ok(result);
 		}
 
+		[Authorize(Roles = "Admin")]
 		[HttpPut("shippings/{id}")]
 		public async Task<IActionResult> Update(int id, [FromBody] UpdateShippingStatus updateShippingStatus)
 		{
@@ -65,6 +69,7 @@ namespace BookStore.API.Controllers
 			return Ok(result);
 		}
 
+		[Authorize(Roles = "Admin")]
 		[HttpGet("shippings/{id}")]
 		public async Task<IActionResult> GetShippingDetailById(int id)
 		{
@@ -75,6 +80,7 @@ namespace BookStore.API.Controllers
 			return Ok(result);
 		}
 
+		[Authorize(Roles = "Admin")]
 		[HttpPut("shipping-detail/{id}")]
 		public async Task<IActionResult> UpdateShippingDetail(UpdateShippingDetailRequest updateShippingDetailRequest, int id)
 		{

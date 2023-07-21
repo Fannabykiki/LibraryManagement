@@ -6,6 +6,8 @@
 }
 <head>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.0/dist/js.cookie.min.js"></script>
+
 </head>
 <h1>Edit</h1>
 
@@ -42,6 +44,7 @@
             categoryName: $('#cate').val(),
             description: $('#des').val(),
         };
+        var jwt = Cookies.get('jwt');
         var id = $('#id').val();
         if (book) {
             $.ajax({
@@ -50,11 +53,19 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 data: JSON.stringify(book),
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+                },
                 success: function (result, status, xhr) {
                     window.location.href = "https://localhost:7115/Categories";
                 },
                 error: function (xhr, status, error) {
-                    console.log(xhr)
+                    if (xhr.status == 401) {
+                        alert("You need to login first")
+                        window.location.href = "https://localhost:7115/Login";
+                    } else if (xhr.status == 403) {
+                        window.location.href = "https://localhost:7115/Error";
+                    }
                 }
             });
         }
