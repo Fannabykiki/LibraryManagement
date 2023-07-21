@@ -1,26 +1,39 @@
+using BookStore.Common.DTOs.User;
 using Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Security.Principal;
 
 namespace BookStore.Extensions
 {
     public static class ControllerExtensions
     {
-        public static Guid? GetCurrentLoginUserId(this ControllerBase controller) 
+        public static LoginResponse GetCurrentLoginUserId(this ControllerBase controller) 
         {
             if (controller.HttpContext.User.Identity is ClaimsIdentity identity)
             {
-                var userIdString = identity?.FindFirst("UserID")?.Value;
+                var roleClaim = identity?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
+                var userIdString = identity?.FindFirst("UserId")?.Value;
+                var userClaim = identity?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
 
                 if (string.IsNullOrWhiteSpace(userIdString))
+                {
                     return null;
+                }
 
                 var isUserIdValid = Guid.TryParse(userIdString, out Guid userId);
 
                 if (!isUserIdValid)
+                {
                     return null;
+                }
 
-                return userId;
+                return new LoginResponse
+                {
+                    Role = roleClaim,
+                    UserId = userId,
+                    UserName = userClaim,
+                };
             }
             else
             {

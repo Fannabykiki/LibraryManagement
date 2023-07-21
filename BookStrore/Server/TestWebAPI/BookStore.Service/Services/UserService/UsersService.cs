@@ -22,7 +22,7 @@ namespace BookStore.API.Services.UserService
 		}
 		public async Task<User> LoginUser(string username, string password)
 		{
-			return await _context.Users.SingleOrDefaultAsync(x => x.UserName == username && x.Password == password);
+			return await _context.Users.FirstOrDefaultAsync(x => x.UserName == username && x.Password == password);
 		}
 
 		public async Task<User> GetUserByIdAsync(Guid id)

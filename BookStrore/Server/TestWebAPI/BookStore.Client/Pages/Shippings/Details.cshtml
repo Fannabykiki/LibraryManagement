@@ -8,7 +8,6 @@
 <h1>Details</h1>
 <head>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 </head>
 <div>
@@ -20,10 +19,10 @@
 				<input type="hidden" asp-for="Shipping.ShippingId" id="id" />
 				<tr>
 					<th>
-						Address
+						Company Shipping
 					</th>
 					<th>
-						Company Shipping
+						Address
 					</th>
 					<th>
 						Phone Number
@@ -47,6 +46,7 @@
 	});
 
 	function LoadData() {
+		debugger
 		var id = $('#id').val();
 		$("table tbody").html("");
 		$.ajax({
@@ -55,23 +55,23 @@
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
 			success: function (result, status, xhr) {
-				console.log(result)
+				
+				console.log(result);
 				$.each(result, function (index, value) {
 					var appendElement = $("<tr>");
-					if (value["shippingDate"] === null) {
-						appendElement.append($("<td>").html(" "));
-					} else{
-					var publishedDate = moment(value["shippingDate"]).format("DD/MM/YYYY");
-					if (moment(publishedDate, "DD/MM/YYYY", true).isValid()) {
-						appendElement.append($("<td>").html(publishedDate));
-					} else {
-						appendElement.append($("<td>").html(" "));
-					}
-					}
 					appendElement.append($("<td>").html(value["address"]));
 					appendElement.append($("<td>").html(value["companyName"]));
 					appendElement.append($("<td>").html(value["phoneNumber"]));
-				
+					if (value["shippingDate"] === null) {
+						appendElement.append($("<td>").html(" "));
+					} else {
+						var publishedDate = moment(value["shippingDate"]).format("DD/MM/YYYY");
+						if (moment(publishedDate, "DD/MM/YYYY", true).isValid()) {
+							appendElement.append($("<td>").html(publishedDate));
+						} else {
+							appendElement.append($("<td>").html(" "));
+						}
+					}
 					$("table tbody").append(appendElement);
 				});
 			},

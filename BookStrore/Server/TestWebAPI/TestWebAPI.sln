@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookStore.Common", "Common\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookStore.Service", "BookStore.Service\BookStore.Service.csproj", "{8F008AB3-909B-4C34-A996-0F8A4CCD1AD2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookStore.Client", "BookStore.Client\BookStore.Client.csproj", "{A3B33FC9-CDC3-41D2-96AB-1D64261195EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookStore.Client", "BookStore.Client\BookStore.Client.csproj", "{A3B33FC9-CDC3-41D2-96AB-1D64261195EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

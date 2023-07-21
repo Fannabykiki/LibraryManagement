@@ -4,12 +4,15 @@ using BookStore.Common.DTOs.ShippingDTOs;
 using BookStore.Data.Entities;
 using BookStore.Service.Services.Loggerservice;
 using BookStore.Service.Services.ShippingService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 
 namespace BookStore.API.Controllers
 {
-	[Route("api/shipping-management")]
+
+    
+    [Route("api/shipping-management")]
 	[ApiController]
 	public class ShippingController : ControllerBase
 	{

@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.OData.Query;
 
 namespace Book.API.Controllers
 {
-	//[Authorize]
+	
 	[Route("/api/book-management")]
 	[ApiController]
 	public class BookController : ControllerBase
@@ -29,18 +29,17 @@ namespace Book.API.Controllers
 		}
 
 		[EnableQuery]
-		[AllowAnonymous]
-		[HttpGet("books")]
+        [AllowAnonymous]
+        [HttpGet("books")]
 		public async Task<ActionResult<IQueryable<BookViewModel>>> GetAllBook()
 		{
 			var result = await _bookService.GetAllBookAsync();
 			if (result == null) return StatusCode(500);
 			return Ok(result);
 		}
-
-		//[Authorize(Policy = UserRoles.Admin)]
-		[AllowAnonymous]
-		[HttpPost("books")]
+        
+        [Authorize(Roles = "Admin")]
+        [HttpPost("books")]
 		public async Task<IActionResult> Create([FromBody] AddBookRequest addBook)
 		{
 			var result = await _bookService.CreateAsync(addBook);
@@ -51,8 +50,8 @@ namespace Book.API.Controllers
 		}
 
 		[HttpDelete("books/{id}")]
-		//[Authorize(Policy = UserRoles.Admin)]
-		[AllowAnonymous]
+		[Authorize(Roles = UserRoles.Admin)]
+		
 		public async Task<IActionResult> Delete(int id)
 		{
 			var result = await _bookService.DeleteAsync(id);
@@ -61,7 +60,8 @@ namespace Book.API.Controllers
 		}
 
 		[HttpPut("books/{id}")]
-		//[Authorize(Policy = UserRoles.Admin)]
+		[Authorize(Roles = UserRoles.Admin)]
+
 		public async Task<IActionResult> Update(int id, [FromBody] UpdateBookRequest updateBookRequest)
 		{
 			var result = await _bookService.UpdateAsync(id, updateBookRequest);
@@ -82,7 +82,7 @@ namespace Book.API.Controllers
 			return Ok(result);
 		}
 
-		//[Authorize(Policy = UserRoles.Admin)]
+		[Authorize(Roles = UserRoles.Admin)]
 		[HttpPost("book-borrowing")]
 		public async Task<IActionResult> CreateBookBorrowing(CreateBookBorrowingRequest createBookBorrowingRequest)
 		{
@@ -94,14 +94,14 @@ namespace Book.API.Controllers
 		}
 
 		[EnableQuery]
-		//[Authorize(Policy = UserRoles.Admin)]
+		[Authorize(Roles = UserRoles.Admin)]
 		[HttpGet("book-borrowing")]
 		public async Task<IEnumerable<BorrowingRequestViewModel>> GetAllBookRequest()
 		{
 			return await _bookService.GetAllBookRequestAsync();
 		}
 
-		//[Authorize(Policy = UserRoles.Admin)]
+		[Authorize(Roles = UserRoles.Admin)]
 		[HttpPut("book-borrowing/{id}")]
 		public async Task<IActionResult> UpdateBorrowingRequest(int id, UpdateBorrowingRequest updateBorrowingRequest)
 		{
@@ -113,7 +113,7 @@ namespace Book.API.Controllers
 			return Ok(result);
 		}
 
-		//[Authorize(Policy = UserRoles.Admin)]
+		[Authorize(Roles = UserRoles.Admin)]
 		[HttpGet("book-borrowingdetail/{id}")]
 		public async Task<IActionResult> GetBorrowingDetailByRequestIdAsync(int id)
 		{
@@ -124,7 +124,7 @@ namespace Book.API.Controllers
 			return Ok(result);
 		}
 
-		//[Authorize(Policy = UserRoles.Admin)]
+		[Authorize(Roles = UserRoles.Admin)]
 		[HttpGet("book-borrowingrequest")]
 		public async Task<IActionResult> GetRequestByUserId()
 		{
@@ -135,7 +135,7 @@ namespace Book.API.Controllers
 			}
 			if (userId != null)
 			{
-				var user = await _usersService.GetUserByIdAsync(userId.Value);
+				var user = await _usersService.GetUserByIdAsync(userId.UserId);
 				if (user != null)
 				{
 					var bookBorrowingRequest = await _bookService.GetRequestByUserId(user);

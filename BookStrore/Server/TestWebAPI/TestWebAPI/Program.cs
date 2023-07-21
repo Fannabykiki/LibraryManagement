@@ -84,11 +84,8 @@ internal class Program
         {
             opt.UseSqlServer(configuration.GetConnectionString("DBConnString"));
         });
-        builder.Services.AddAuthorization(op =>
-        {
-            op.AddPolicy(UserRoles.Admin, p => p.RequireClaim(UserRoles.ClaimUser,"Admin"));
-        }
-        );
+     
+     
 
         builder.Services.AddHttpContextAccessor();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -6,12 +6,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 var configuration = builder.Configuration;
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSession(x =>
+{
+    x.IdleTimeout = TimeSpan.FromMinutes(100);
+});
 builder.Services.AddDbContext<BookStoreContext>(opt =>
 {
 	opt.UseSqlServer(configuration.GetConnectionString("DBConnString"));
 });
-var app = builder.Build();
 
+var app = builder.Build();
+app.UseSession();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -28,5 +35,4 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapRazorPages();
-
 app.Run();

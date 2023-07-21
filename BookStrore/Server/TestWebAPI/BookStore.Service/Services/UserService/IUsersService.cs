@@ -1,7 +1,4 @@
-﻿using BookStore.Common.DTOs.Shipping;
-using BookStore.Common.DTOs.ShippingDTO;
-using BookStore.Common.DTOs.ShippingDTOs;
-using BookStore.Common.DTOs.User;
+﻿using BookStore.Common.DTOs.User;
 using BookStore.Data.Entities;
 
 namespace BookStore.API.Services.UserService

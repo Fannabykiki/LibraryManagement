@@ -1,0 +1,72 @@
+﻿@page
+@model BookStore.Client.Pages.LoginModel
+
+<head>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+<form class="login100-form validate-form" method="post">
+    <span class="login100-form-logo">
+        <i class="zmdi zmdi-landscape"></i>
+    </span>
+
+    <span class="login100-form-title p-b-34 p-t-27">
+        Log in
+    </span>
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="wrap-input100 validate-input" data-validate="Enter username">
+        <input class="input100" type="text" placeholder="Enter ur username" asp-for="Login.UserName">
+        <span class="focus-input100" data-placeholder="&#xf207;"></span>
+        <span asp-validation-for="Login.UserName" class="text-danger"></span>
+    </div>
+
+    <div class="wrap-input100 validate-input" data-validate="Enter password">
+        <input class="input100" type="password" placeholder="Enter ur Password" asp-for="Login.Password">
+        <span class="focus-input100" data-placeholder="&#xf191;"></span>
+        <span asp-validation-for="Login.Password" class="text-danger"></span>
+    </div>
+
+    <div class="container-login100-form-btn">
+        <button class="login100-form-btn" type="submit">
+            Login
+        </button>
+    </div>
+
+    <div class="text-center p-t-90">
+        <a class="txt1" href="#">
+            Forgot Password?
+        </a>
+    </div>
+</form>
+
+    @*<script type="text/javascript">
+    function onLogin() {
+        var book = {
+            password: $('#password').val(),
+            userName: $('#email').val(),
+        };
+
+        if (book) {
+            console.log(book);
+            $.ajax({
+                url: "https://localhost:7233/api/authentication/token",
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(book),
+                success: function (result, status, xhr) {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                      
+                    } else {
+                        alert("username or password incorrect")
+                    }
+                    alert("login success.");
+                    window.location.href = "https://localhost:7115";
+                },
+                error: function (xhr, status, error) {
+                    alert("username or password incorrect")
+                }
+            });
+        }
+    }
+</script>*@
