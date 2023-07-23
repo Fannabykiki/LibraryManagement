@@ -187,24 +187,19 @@ namespace BookStore.API.Services.BookService
 			return _mapper.Map<List<DetailViewModel>>(result);
 		}
 
-		public async Task<IEnumerable<GetBookResponse>> GetRequestByUserId(User user)
+		public async Task<IEnumerable<BorrowingRequestViewModel>> GetRequestByUserId(Guid userId)
 		{
 			var transaction = _bookRequestRepository.DatabaseTransaction();
 			try
 			{
-				var result = (await _bookRequestRepository.GetAllWithOdata(x => x.UserRquestId == user.UserId, null)).ToList();
+				var result = await _bookRequestRepository.GetAllWithOdata(x => x.UserRquestId == userId, x => x.User);
 				if (result == null)
 				{
 					return null;
 				}
 
-				return result.Select(bookRequest => new GetBookResponse
-				{
-					RequestDate = bookRequest.RequestDate,
-					Status = bookRequest.Status,
-					UserRquestId = user.UserId,
-				});
-			}
+                return _mapper.Map<List<BorrowingRequestViewModel>>(result);
+            }
 			catch
 			{
 				transaction.RollBack();

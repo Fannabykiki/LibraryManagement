@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using BookStore.Data;
 using BookStore.Data.Entities;
+using BookStore.Common.Enums;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Common.Enums;
 
 namespace BookStore.Client.Pages.Users
 {
@@ -23,7 +26,15 @@ namespace BookStore.Client.Pages.Users
 
         public async Task OnGetAsync()
         {
-            if (_context.Users != null)
+			var statusList = Enum.GetValues(typeof(UserRoleEnum))
+				   .Cast<UserRoleEnum>()
+				   .Select(e => new SelectListItem
+				   {
+					   Value = ((int)e).ToString(),
+					   Text = e.ToString()
+				   }).ToList();
+			ViewData["Status"] = statusList;
+			if (_context.Users != null)
             {
                 User = await _context.Users.ToListAsync();
             }

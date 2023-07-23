@@ -14,18 +14,24 @@
 
 <p>
 	<a asp-page="Create">Create New</a>
+	<div class="form-group">
+		<select id="status" asp-items="ViewBag.Status" class="form-control"></select>
+	</div>
 </p>
 <table class="table">
 	<thead>
 		<tr>
 			<th>
 				@Html.DisplayNameFor(model => model.Shipping[0].ReceiverName)
+				<input type="text" name="Title" placeholder="Input ReceiverName" id="searchtext" />
 			</th>
 			<th>
 				@Html.DisplayNameFor(model => model.Shipping[0].BookBorrowingRequestId)
 			</th>
 			<th>
 				@Html.DisplayNameFor(model => model.Shipping[0].CreateDate)
+				<a href="#" onclick="onSortDes()">Des</a>
+				<a href="#" onclick="onSortAsc()">Asc</a>
 			</th>
 			<th>
 				@Html.DisplayNameFor(model => model.Shipping[0].Status)
@@ -45,10 +51,120 @@
 		</tr>
 	</thead>
 	<tbody>
-	</tbody>
+	</tbody>   
 </table>
 <script type="text/javascript">
 	$(document).ready(function () {
+		$('#searchtext').on('keyup', function () {
+			var searchtext = $('#searchtext').val();
+			var jwt = Cookies.get('jwt');
+			$("table tbody").html("");
+			$.ajax({
+				url: "https://localhost:7233/api/shipping-management/shippings?$filter=contains(receiverName," + "'" + searchtext + "')",
+				type: "GET",
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+				},
+				success: function (result, status, xhr) {
+					$("table tbody").html("");
+					$.each(result, function (index, value) {
+						var appendElement = $("<tr>");
+						appendElement.append($("<td>").html(value["receiverName"]));
+						appendElement.append($("<td>").html(value["bookBorrowingRequestId"]));
+						var publishedDate = moment(value["createDate"]).format("DD/MM/YYYY");
+						if (moment(publishedDate, "DD/MM/YYYY", true).isValid()) {
+							appendElement.append($("<td>").html(publishedDate));
+						} else {
+							appendElement.append($("<td>").html("Invalid date"));
+						}
+						var statusText = "";
+						if (value["status"] === 0) {
+							statusText = "Pending";
+						} else if (value["status"] === 1) {
+							statusText = "Shipping";
+						} else if (value["status"] === -1) {
+							statusText = "Completed";
+						} else {
+							statusText = "unknown";
+						}
+						appendElement.append($("<td>").html(statusText));
+						appendElement.append($("<td>").html("<a href=\"Shippings/Edit?id=" + value["shippingId"] + "\">Edit</a>"));
+						appendElement.append($("<td>").html("<a href=\"Shippings/EditStatus?id=" + value["shippingId"] + "\">Update status</a>"));
+						appendElement.append($("<td>").html("<a href=\"Shippings/Details?id=" + value["shippingId"] + "\">Details</a>"));
+						appendElement.append($("<td>").html("<a href=\"Shippings/Delete?id=" + value["shippingId"] + "\">Delete</a>"));
+						$("table tbody").append(appendElement);
+					});
+				},
+				error: function (xhr, status, error) {
+					if (xhr.status == 401) {
+						alert("You need to login first")
+						window.location.href = "https://localhost:7115/Login";
+					} else if (xhr.status == 403) {
+						window.location.href = "https://localhost:7115/Error";
+					}
+				}
+			}); // Add closing brace for the first AJAX request here
+		});
+		$('#status').on('change', function () {
+			var title = $('#status').val();
+			var jwt = Cookies.get('jwt');
+			var status = "";
+			if (title == 0) {
+				status = "Pending"
+			} else if (title == 1) {
+				status = "Shipping"
+			} else {
+				status = "Completed"
+			}
+			$("table tbody").html("");
+			$.ajax({
+				url: "https://localhost:7233/api/shipping-management/shippings?$filter=status" + " eq " + "'" + status + "'",
+				type: "GET",
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+				},
+				success: function (result, status, xhr) {
+					$.each(result, function (index, value) {
+						var appendElement = $("<tr>");
+						appendElement.append($("<td>").html(value["receiverName"]));
+						appendElement.append($("<td>").html(value["bookBorrowingRequestId"]));
+						var publishedDate = moment(value["createDate"]).format("DD/MM/YYYY");
+						if (moment(publishedDate, "DD/MM/YYYY", true).isValid()) {
+							appendElement.append($("<td>").html(publishedDate));
+						} else {
+							appendElement.append($("<td>").html("Invalid date"));
+						}
+						var statusText = "";
+						if (value["status"] === 0) {
+							statusText = "Pending";
+						} else if (value["status"] === 1) {
+							statusText = "Shipping";
+						} else if (value["status"] === -1) {
+							statusText = "Completed";
+						} else {
+							statusText = "unknown";
+						}
+						appendElement.append($("<td>").html(statusText));
+						appendElement.append($("<td>").html("<a href=\"Shippings/Edit?id=" + value["shippingId"] + "\">Edit</a>"));
+						appendElement.append($("<td>").html("<a href=\"Shippings/EditStatus?id=" + value["shippingId"] + "\">Update status</a>"));
+						appendElement.append($("<td>").html("<a href=\"Shippings/Details?id=" + value["shippingId"] + "\">Details</a>"));
+						appendElement.append($("<td>").html("<a href=\"Shippings/Delete?id=" + value["shippingId"] + "\">Delete</a>"));
+						$("table tbody").append(appendElement);
+					});
+				},
+				error: function (xhr, status, error) {
+					if (xhr.status == 401) {
+						window.location.href = "https://localhost:7115/Login";
+					} else if (xhr.status == 403) {
+						window.location.href = "https://localhost:7115/Error";
+					}
+				}
+			});
+		});
 		LoadData();
 	});
 
@@ -107,7 +223,6 @@
 
 	function onSearch() {
 		var jwt = Cookies.get('jwt');
-
 		var title = $('#title').val();
 		$("table tbody").html("");
 		$.ajax({
@@ -159,4 +274,112 @@
 		});
 		return false;
 	}
+	function onSortDes() {
+		var title = $('#title').val();
+		var jwt = Cookies.get('jwt');
+
+		$("table tbody").html("");
+		$.ajax({
+			url: "https://localhost:7233/api/book-management/books?$orderby=createDate" + " desc",
+			type: "GET",
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+			},
+			success: function (result, status, xhr) {
+				$("table tbody").html("");
+				$.each(result, function (index, value) {
+					var appendElement = $("<tr>");
+					appendElement.append($("<td>").html(value["receiverName"]));
+					appendElement.append($("<td>").html(value["bookBorrowingRequestId"]));
+					var publishedDate = moment(value["createDate"]).format("DD/MM/YYYY");
+					if (moment(publishedDate, "DD/MM/YYYY", true).isValid()) {
+						appendElement.append($("<td>").html(publishedDate));
+					} else {
+						appendElement.append($("<td>").html("Invalid date"));
+					}
+					var statusText = "";
+					if (value["status"] === 0) {
+						statusText = "Pending";
+					} else if (value["status"] === 1) {
+						statusText = "Shipping";
+					} else if (value["status"] === -1) {
+						statusText = "Completed";
+					} else {
+						statusText = "unknown";
+					}
+					appendElement.append($("<td>").html(statusText));
+					appendElement.append($("<td>").html("<a href=\"Shippings/Edit?id=" + value["shippingId"] + "\">Edit</a>"));
+					appendElement.append($("<td>").html("<a href=\"Shippings/EditStatus?id=" + value["shippingId"] + "\">Update status</a>"));
+					appendElement.append($("<td>").html("<a href=\"Shippings/Details?id=" + value["shippingId"] + "\">Details</a>"));
+					appendElement.append($("<td>").html("<a href=\"Shippings/Delete?id=" + value["shippingId"] + "\">Delete</a>"));
+					$("table tbody").append(appendElement);
+				});
+			},
+			error: function (xhr, status, error) {
+				if (xhr.status == 401) {
+					window.location.href = "https://localhost:7115/Login";
+				} else if (xhr.status == 403) {
+					window.location.href = "https://localhost:7115/Error";
+				}
+			}
+		});
+		return false;
+	}
+
+	function onSortAsc() {
+		var title = $('#title').val();
+		var jwt = Cookies.get('jwt');
+
+		$("table tbody").html("");
+		$.ajax({
+			url: "https://localhost:7233/api/book-management/books?$orderby=createDate" + " asc",
+			type: "GET",
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+			},
+			success: function (result, status, xhr) {
+				$("table tbody").html("");
+				$.each(result, function (index, value) {
+					var appendElement = $("<tr>");
+					appendElement.append($("<td>").html(value["receiverName"]));
+					appendElement.append($("<td>").html(value["bookBorrowingRequestId"]));
+					var publishedDate = moment(value["createDate"]).format("DD/MM/YYYY");
+					if (moment(publishedDate, "DD/MM/YYYY", true).isValid()) {
+						appendElement.append($("<td>").html(publishedDate));
+					} else {
+						appendElement.append($("<td>").html("Invalid date"));
+					}
+					var statusText = "";
+					if (value["status"] === 0) {
+						statusText = "Pending";
+					} else if (value["status"] === 1) {
+						statusText = "Shipping";
+					} else if (value["status"] === -1) {
+						statusText = "Completed";
+					} else {
+						statusText = "unknown";
+					}
+					appendElement.append($("<td>").html(statusText));
+					appendElement.append($("<td>").html("<a href=\"Shippings/Edit?id=" + value["shippingId"] + "\">Edit</a>"));
+					appendElement.append($("<td>").html("<a href=\"Shippings/EditStatus?id=" + value["shippingId"] + "\">Update status</a>"));
+					appendElement.append($("<td>").html("<a href=\"Shippings/Details?id=" + value["shippingId"] + "\">Details</a>"));
+					appendElement.append($("<td>").html("<a href=\"Shippings/Delete?id=" + value["shippingId"] + "\">Delete</a>"));
+					$("table tbody").append(appendElement);
+				});
+			},
+			error: function (xhr, status, error) {
+				if (xhr.status == 401) {
+					window.location.href = "https://localhost:7115/Login";
+				} else if (xhr.status == 403) {
+					window.location.href = "https://localhost:7115/Error";
+				}
+			}
+		});
+		return false;
+	}
+
 </script>

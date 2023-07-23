@@ -56,8 +56,9 @@
             password: $('#pass').val(),
             address: $('#add').val(),
             phoneNumber: $('#phone').val(),
+            role: 1,
         };
-        console.log($('#status').val());
+        console.log(book);
         var id = $('#id').val();
         var jwt = Cookies.get('jwt');
 

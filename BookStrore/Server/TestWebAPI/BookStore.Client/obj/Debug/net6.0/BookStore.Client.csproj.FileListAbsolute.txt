@@ -274,5 +274,8 @@ D:\FULearning\Summer2023\PRN231\Mid_Assigment\BookStrore\Server\TestWebAPI\BookS
 D:\FULearning\Summer2023\PRN231\Mid_Assigment\BookStrore\Server\TestWebAPI\BookStore.Client\obj\Debug\net6.0\BookStore.Client.genruntimeconfig.cache
 D:\FULearning\Summer2023\PRN231\Mid_Assigment\BookStrore\Server\TestWebAPI\BookStore.Client\obj\Debug\net6.0\ref\BookStore.Client.dll
 D:\FULearning\Summer2023\PRN231\Mid_Assigment\BookStrore\Server\TestWebAPI\BookStore.Client\bin\Debug\net6.0\Microsoft.Extensions.Configuration.dll
-D:\FULearning\Summer2023\PRN231\Mid_Assigment\BookStrore\Server\TestWebAPI\BookStore.Client\obj\Debug\net6.0\BookStore.Client.MvcApplicationPartsAssemblyInfo.cs
 D:\FULearning\Summer2023\PRN231\Mid_Assigment\BookStrore\Server\TestWebAPI\BookStore.Client\bin\Debug\net6.0\AutoMapper.dll
+D:\FULearning\Summer2023\PRN231\Mid_Assigment\BookStrore\Server\TestWebAPI\BookStore.Client\bin\Debug\net6.0\FluentValidation.dll
+D:\FULearning\Summer2023\PRN231\Mid_Assigment\BookStrore\Server\TestWebAPI\BookStore.Client\bin\Debug\net6.0\FluentValidation.AspNetCore.dll
+D:\FULearning\Summer2023\PRN231\Mid_Assigment\BookStrore\Server\TestWebAPI\BookStore.Client\bin\Debug\net6.0\FluentValidation.DependencyInjectionExtensions.dll
+D:\FULearning\Summer2023\PRN231\Mid_Assigment\BookStrore\Server\TestWebAPI\BookStore.Client\obj\Debug\net6.0\BookStore.Client.MvcApplicationPartsAssemblyInfo.cs

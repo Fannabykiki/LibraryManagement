@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using BookStore.Data;
 using BookStore.Data.Entities;
+using BookStore.Common.Enums;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BookStore.Client.Pages.Shippings
 {
@@ -23,7 +25,15 @@ namespace BookStore.Client.Pages.Shippings
 
         public async Task OnGetAsync()
         {
-            if (_context.Shippings != null)
+			var statusList = Enum.GetValues(typeof(ShippingStatus))
+				   .Cast<ShippingStatus>()
+				   .Select(e => new SelectListItem
+				   {
+					   Value = ((int)e).ToString(),
+					   Text = e.ToString()
+				   }).ToList();
+			ViewData["Status"] = statusList;
+			if (_context.Shippings != null)
             {
                 Shipping = await _context.Shippings.ToListAsync();
             }

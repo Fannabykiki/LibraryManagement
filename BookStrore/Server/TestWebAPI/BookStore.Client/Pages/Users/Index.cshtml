@@ -14,14 +14,16 @@
 <p>
 	<a href="" onclick="LoadData()">Back to full list</a>
     <a asp-page="Create">Create New</a>
+	<div class="form-group">
+		<select id="status" asp-items="ViewBag.Status" class="form-control"></select>
+	</div>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.User[0].UserName)
-				<input type="text" name="Title" placeholder="Input username" id="title" />
-				<button type="button" onclick="onSearch()">Search</button>
+				<input type="text" name="Title" placeholder="Input username" id="searchtext" />
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.User[0].Password)
@@ -48,6 +50,95 @@
 </table>
 <script type="text/javascript">
 	$(document).ready(function () {
+		$('#searchtext').on('keyup', function () {
+			var searchtext = $('#searchtext').val();
+			var jwt = Cookies.get('jwt');
+			$("table tbody").html("");
+			$.ajax({
+				url: "https://localhost:7233/api/user-management/users?$filter=contains(userName," + "'" + searchtext + "')",
+				type: "GET",
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+				},
+				success: function (result, status, xhr) {
+					$("table tbody").html("");
+					$.each(result, function (index, value) {
+						var appendElement = $("<tr>");
+						appendElement.append($("<td>").html(value["userName"]));
+						appendElement.append($("<td>").html(value["password"]));
+						appendElement.append($("<td>").html(value["address"]));
+						appendElement.append($("<td>").html(value["phoneNumber"]));
+						var statusText = "";
+						if (value["role"] === 0) {
+							statusText = "Admin";
+						} else if (value["status"] === 1) {
+							statusText = "Normal User";
+						}
+						appendElement.append($("<td>").html(statusText))
+						appendElement.append($("<td>").html("<a href=\"Users/Edit?id=" + value["userId"] + "\">Edit</a>"));
+						appendElement.append($("<td>").html("<a href=\"Users/Delete?id=" + value["userId"] + "\">Delete</a>"));
+						$("table tbody").append(appendElement);
+					});
+				},
+				error: function (xhr, status, error) {
+					if (xhr.status == 401) {
+						alert("You need to login first")
+						window.location.href = "https://localhost:7115/Login";
+					} else if (xhr.status == 403) {
+						window.location.href = "https://localhost:7115/Error";
+					}
+				}
+			}); // Add closing brace for the first AJAX request here
+		});
+		$('#status').on('change', function () {
+			var title = $('#status').val();
+			var jwt = Cookies.get('jwt');
+			var status = "";
+			if (title == 0) {
+				status = "Admin"
+			} else if (title == 1) {
+				status = "Normal User"
+			} 
+			$("table tbody").html("");
+			$.ajax({
+				url: "https://localhost:7233/api/user-management/users?$filter=role" + " eq " + "'" + status + "'",
+				type: "GET",
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+				},
+				success: function (result, status, xhr) {
+					$("table tbody").html("");
+					$.each(result, function (index, value) {
+						var appendElement = $("<tr>");
+						appendElement.append($("<td>").html(value["userName"]));
+						appendElement.append($("<td>").html(value["password"]));
+						appendElement.append($("<td>").html(value["address"]));
+						appendElement.append($("<td>").html(value["phoneNumber"]));
+						var statusText = "";
+						if (value["role"] === 0) {
+							statusText = "Admin";
+						} else if (value["status"] === 1) {
+							statusText = "Normal User";
+						}
+						appendElement.append($("<td>").html(statusText))
+						appendElement.append($("<td>").html("<a href=\"Users/Edit?id=" + value["userId"] + "\">Edit</a>"));
+						appendElement.append($("<td>").html("<a href=\"Users/Delete?id=" + value["userId"] + "\">Delete</a>"));
+						$("table tbody").append(appendElement);
+					});
+				},
+				error: function (xhr, status, error) {
+					if (xhr.status == 401) {
+						window.location.href = "https://localhost:7115/Login";
+					} else if (xhr.status == 403) {
+						window.location.href = "https://localhost:7115/Error";
+					}
+				}
+			});
+		});
 		LoadData();
 	});
 

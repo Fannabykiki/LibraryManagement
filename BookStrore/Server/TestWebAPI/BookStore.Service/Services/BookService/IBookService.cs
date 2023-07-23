@@ -18,6 +18,6 @@ namespace BookStore.API.Services.BookService
         Task<UpdateBookBorrowingResponse> UpdateBorrowingRequestAsync(UpdateBorrowingRequest updateBorrowingRequest,int id);
         //Task<GetBooksResponse> GetBooks(GetBooksRequest getBookRequest);
         Task<IEnumerable<DetailViewModel>> GetBorrowingDetailByRequestIdAsync(int id);
-        Task<IEnumerable<GetBookResponse>> GetRequestByUserId(User user);
+        Task<IEnumerable<BorrowingRequestViewModel>> GetRequestByUserId(Guid userId);
     }
 }

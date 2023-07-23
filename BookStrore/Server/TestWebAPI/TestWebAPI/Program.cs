@@ -21,10 +21,16 @@ using Common.Enums;
 using BookStore.Service.Services.ShippingService;
 using AutoMapper;
 using BookStore.Service.Services.Mapping;
+using FluentValidation.AspNetCore;
+using System.Reflection;
+using FluentValidation;
+using BookStore.API.Extensions.Validation;
+using BookStore.API.DTOs;
 
 internal class Program
 {
-    private static void Main(string[] args)
+	[Obsolete]
+	private static void Main(string[] args)
     {
         static IEdmModel GetEdmModel()
         {
@@ -57,8 +63,17 @@ internal class Program
         builder.Services.AddSingleton<ILoggerManager, LoggerManager>();
         builder.Services.AddControllers().AddOData(opt => opt.AddRouteComponents("odata", GetEdmModel()).Filter().Select().Expand().Count().OrderBy().SetMaxTop(100));
         builder.Services.AddSignalR();
+		builder.Services.AddControllers()
+				.AddFluentValidation(options =>
+				{
+					// Validate child properties and root collection elements
+					options.ImplicitlyValidateChildProperties = true;
+					options.ImplicitlyValidateRootCollectionElements = true;
 
-        builder.Services.AddCors(p => p.AddPolicy("corspolicy", build =>
+					// Automatic registration of validators in assembly
+					options.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+				});
+		builder.Services.AddCors(p => p.AddPolicy("corspolicy", build =>
         {
             build.WithOrigins("https://localhost:7115").AllowAnyMethod().AllowAnyHeader();
         }));

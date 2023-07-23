@@ -15,6 +15,9 @@
 <p>
 	<a asp-page="Create">Create New</a>
 	<a href="" onclick="LoadData()">Back to full list</a>
+		<div class="form-group">
+			<select id="status" asp-items="ViewBag.Status" class="form-control"></select>
+		</div>
 </p>
 <table class="table">
 	<thead>
@@ -24,14 +27,16 @@
 			</th>
 			<th>
 				User Request Name
-				<input type="text" name="Title" placeholder="Input username" id="title" />
-				<button type="button" onclick="onSearch()">Search</button>
+				<input type="text" name="Title" placeholder="Input username" id="searchtext" />
+				<button type="button">Search</button>
 			</th>
 			<th>
 				@Html.DisplayNameFor(model => model.BookBorrowingRequest[0].Status)
 			</th>
 			<th>
 				@Html.DisplayNameFor(model => model.BookBorrowingRequest[0].RequestDate)
+				<a href="#" onclick="onSortDes()">Des</a>
+				<a href="#" onclick="onSortAsc()">Asc</a>
 			</th>
 			<th>
 				Edit
@@ -49,6 +54,115 @@
 </table>
 <script type="text/javascript">
 	$(document).ready(function () {
+		$('#searchtext').on('keyup', function () {
+			var searchtext = $('#searchtext').val();
+			var jwt = Cookies.get('jwt');
+			$("table tbody").html("");
+			$.ajax({
+				url: "https://localhost:7233/api/book-management/book-borrowing?$filter=contains(tolower(userRequestName)," + "'" + searchtext.toLowerCase() + "')",
+				type: "GET",
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+				},
+				success: function (result, status, xhr) {
+					$("table tbody").html("");
+					$.each(result, function (index, value) {
+						var appendElement = $("<tr>");
+						appendElement.append($("<td>").html(value["userApprovedName"]));
+						appendElement.append($("<td>").html(value["userRequestName"]));
+						var statusText = "";
+						if (value["status"] === 0) {
+							statusText = "Pending";
+						} else if (value["status"] === 1) {
+							statusText = "Approved";
+						} else if (value["status"] === -1) {
+							statusText = "Rejected";
+						} else {
+							statusText = "unknown";
+						}
+						appendElement.append($("<td>").html(statusText));
+						var publishedDate = moment(value["requestDate"]).format("DD/MM/YYYY");
+						if (moment(publishedDate, "DD/MM/YYYY", true).isValid()) {
+							appendElement.append($("<td>").html(publishedDate));
+						} else {
+							appendElement.append($("<td>").html("Invalid date"));
+						}
+						appendElement.append($("<td>").html("<a href=\"BookBorrowing/Edit?id=" + value["bookBorrowingRequestId"] + "\">Edit</a>"));
+						appendElement.append($("<td>").html("<a href=\"BookBorrowing/Details?id=" + value["bookBorrowingRequestId"] + "\">Detail</a>"));
+						appendElement.append($("<td>").html("<a href=\"BookBorrowing/Delete?id=" + value["bookBorrowingRequestId"] + "\">Delete</a>"));
+						$("table tbody").append(appendElement);
+					});
+				},
+				error: function (xhr, status, error) {
+					if (xhr.status == 401) {
+						alert("You need to login first")
+						window.location.href = "https://localhost:7115/Login";
+					} else if (xhr.status == 403) {
+						window.location.href = "https://localhost:7115/Error";
+					}
+				}
+			});
+		});
+		$('#status').on('change', function () {
+			var title = $('#status').val();
+			var jwt = Cookies.get('jwt');
+			var status = "";
+			if (title == 0) {
+				status = "Pending"
+			} else if (title == 1) {
+				status = "Approved"
+			} else {
+				status = "Rejected"
+			}
+			$("table tbody").html("");
+			$.ajax({
+				url: "https://localhost:7233/api/book-management/book-borrowing?$filter=status" + " eq " + "'" + status + "'",
+				type: "GET",
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+				},
+				success: function (result, status, xhr) {
+					$("table tbody").html("");
+					$.each(result, function (index, value) {
+						var appendElement = $("<tr>");
+						appendElement.append($("<td>").html(value["userApprovedName"]));
+						appendElement.append($("<td>").html(value["userRequestName"]));
+						var statusText = "";
+						if (value["status"] === 0) {
+							statusText = "Pending";
+						} else if (value["status"] === 1) {
+							statusText = "Approved";
+						} else if (value["status"] === -1) {
+							statusText = "Rejected";
+						} else {
+							statusText = "unknown";
+						}
+						appendElement.append($("<td>").html(statusText));
+						var publishedDate = moment(value["requestDate"]).format("DD/MM/YYYY");
+						if (moment(publishedDate, "DD/MM/YYYY", true).isValid()) {
+							appendElement.append($("<td>").html(publishedDate));
+						} else {
+							appendElement.append($("<td>").html("Invalid date"));
+						}
+						appendElement.append($("<td>").html("<a href=\"BookBorrowing/Edit?id=" + value["bookBorrowingRequestId"] + "\">Edit</a>"));
+						appendElement.append($("<td>").html("<a href=\"BookBorrowing/Details?id=" + value["bookBorrowingRequestId"] + "\">Detail</a>"));
+						appendElement.append($("<td>").html("<a href=\"BookBorrowing/Delete?id=" + value["bookBorrowingRequestId"] + "\">Delete</a>"));
+						$("table tbody").append(appendElement);
+					});
+				},
+				error: function (xhr, status, error) {
+					if (xhr.status == 401) {
+						window.location.href = "https://localhost:7115/Login";
+					} else if (xhr.status == 403) {
+						window.location.href = "https://localhost:7115/Error";
+					}
+				}
+			});
+		});
 		LoadData();
 	});
 
@@ -87,6 +201,7 @@
 					}
 					appendElement.append($("<td>").html("<a href=\"BookBorrowing/Edit?id=" + value["bookBorrowingRequestId"] + "\">Edit</a>"));
 					appendElement.append($("<td>").html("<a href=\"BookBorrowing/Details?id=" + value["bookBorrowingRequestId"] + "\">Detail</a>"));
+					appendElement.append($("<td>").html("<a href=\"BookBorrowing/Delete?id=" + value["bookBorrowingRequestId"] + "\">Delete</a>"));
 					$("table tbody").append(appendElement);
 				});
 			},
@@ -101,13 +216,13 @@
 		});
 	}
 
-
-	function onSearch() {
+	function onSortDes() {
 		var title = $('#title').val();
 		var jwt = Cookies.get('jwt');
+
 		$("table tbody").html("");
 		$.ajax({
-			url: "https://localhost:7233/api/book-management/book-borrowing?$filter=contains(userRequestName," + "'" + title + "')",
+			url: "https://localhost:7233/api/book-management/book-borrowing?$orderby=requestDate" + " desc",
 			type: "GET",
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
@@ -115,6 +230,7 @@
 				xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
 			},
 			success: function (result, status, xhr) {
+				$("table tbody").html("");
 				$.each(result, function (index, value) {
 					var appendElement = $("<tr>");
 					appendElement.append($("<td>").html(value["userApprovedName"]));
@@ -138,12 +254,12 @@
 					}
 					appendElement.append($("<td>").html("<a href=\"BookBorrowing/Edit?id=" + value["bookBorrowingRequestId"] + "\">Edit</a>"));
 					appendElement.append($("<td>").html("<a href=\"BookBorrowing/Details?id=" + value["bookBorrowingRequestId"] + "\">Detail</a>"));
+					appendElement.append($("<td>").html("<a href=\"BookBorrowing/Delete?id=" + value["bookBorrowingRequestId"] + "\">Delete</a>"));
 					$("table tbody").append(appendElement);
 				});
 			},
 			error: function (xhr, status, error) {
 				if (xhr.status == 401) {
-					alert("You need to login first")
 					window.location.href = "https://localhost:7115/Login";
 				} else if (xhr.status == 403) {
 					window.location.href = "https://localhost:7115/Error";
@@ -152,4 +268,58 @@
 		});
 		return false;
 	}
+
+	function onSortAsc() {
+		var title = $('#title').val();
+		var jwt = Cookies.get('jwt');
+
+		$("table tbody").html("");
+		$.ajax({
+			url: "https://localhost:7233/api/book-management/book-borrowing?$orderby=requestDate" + " asc",
+			type: "GET",
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+			},
+			success: function (result, status, xhr) {
+				$("table tbody").html("");
+				$.each(result, function (index, value) {
+					var appendElement = $("<tr>");
+					appendElement.append($("<td>").html(value["userApprovedName"]));
+					appendElement.append($("<td>").html(value["userRequestName"]));
+					var statusText = "";
+					if (value["status"] === 0) {
+						statusText = "Pending";
+					} else if (value["status"] === 1) {
+						statusText = "Approved";
+					} else if (value["status"] === -1) {
+						statusText = "Rejected";
+					} else {
+						statusText = "unknown";
+					}
+					appendElement.append($("<td>").html(statusText));
+					var publishedDate = moment(value["requestDate"]).format("DD/MM/YYYY");
+					if (moment(publishedDate, "DD/MM/YYYY", true).isValid()) {
+						appendElement.append($("<td>").html(publishedDate));
+					} else {
+						appendElement.append($("<td>").html("Invalid date"));
+					}
+					appendElement.append($("<td>").html("<a href=\"BookBorrowing/Edit?id=" + value["bookBorrowingRequestId"] + "\">Edit</a>"));
+					appendElement.append($("<td>").html("<a href=\"BookBorrowing/Details?id=" + value["bookBorrowingRequestId"] + "\">Detail</a>"));
+					appendElement.append($("<td>").html("<a href=\"BookBorrowing/Delete?id=" + value["bookBorrowingRequestId"] + "\">Delete</a>"));
+					$("table tbody").append(appendElement);
+				});
+			},
+			error: function (xhr, status, error) {
+				if (xhr.status == 401) {
+					window.location.href = "https://localhost:7115/Login";
+				} else if (xhr.status == 403) {
+					window.location.href = "https://localhost:7115/Error";
+				}
+			}
+		});
+		return false;
+	}
+
 </script>

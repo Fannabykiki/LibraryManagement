@@ -7,16 +7,14 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using BookStore.Data;
 using BookStore.Data.Entities;
-using BookStore.Common.Enums;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace BookStore.Client.Pages.BookBorrowing
+namespace BookStore.Client.Pages.Users
 {
-    public class IndexModel : PageModel
+    public class ListRequestModel : PageModel
     {
         private readonly BookStore.Data.BookStoreContext _context;
 
-        public IndexModel(BookStore.Data.BookStoreContext context)
+        public ListRequestModel(BookStore.Data.BookStoreContext context)
         {
             _context = context;
         }
@@ -25,15 +23,7 @@ namespace BookStore.Client.Pages.BookBorrowing
 
         public async Task OnGetAsync()
         {
-			var statusList = Enum.GetValues(typeof(ShippingStatus))
-				   .Cast<ShippingStatus>()
-				   .Select(e => new SelectListItem
-				   {
-					   Value = ((int)e).ToString(),
-					   Text = e.ToString()
-				   }).ToList();
-			ViewData["Status"] = statusList;
-			if (_context.BookBorrowingRequests != null)
+            if (_context.BookBorrowingRequests != null)
             {
                 BookBorrowingRequest = await _context.BookBorrowingRequests
                 .Include(b => b.User).ToListAsync();

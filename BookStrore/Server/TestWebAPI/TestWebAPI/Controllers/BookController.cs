@@ -1,4 +1,5 @@
 ﻿using BookStore.API.DTOs;
+using BookStore.API.Extensions.Validation;
 using BookStore.API.Services.BookService;
 using BookStore.API.Services.UserService;
 using BookStore.Common.DTOs.Book.BookBorrowingRequest;
@@ -42,6 +43,11 @@ namespace Book.API.Controllers
         [HttpPost("books")]
 		public async Task<IActionResult> Create([FromBody] AddBookRequest addBook)
 		{
+			if (!ModelState.IsValid)
+			{
+				return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+			}
+
 			var result = await _bookService.CreateAsync(addBook);
 
 			if (result == null) return StatusCode(500);
@@ -63,7 +69,8 @@ namespace Book.API.Controllers
 		[Authorize(Roles = UserRoles.Admin)]
 
 		public async Task<IActionResult> Update(int id, [FromBody] UpdateBookRequest updateBookRequest)
-		{
+		{	
+
 			var result = await _bookService.UpdateAsync(id, updateBookRequest);
 
 			if (result == null) return StatusCode(500);
@@ -113,7 +120,7 @@ namespace Book.API.Controllers
 			return Ok(result);
 		}
 
-		[Authorize(Roles = UserRoles.Admin)]
+		[Authorize]
 		[HttpGet("book-borrowingdetail/{id}")]
 		public async Task<IActionResult> GetBorrowingDetailByRequestIdAsync(int id)
 		{
@@ -124,7 +131,6 @@ namespace Book.API.Controllers
 			return Ok(result);
 		}
 
-		[Authorize(Roles = UserRoles.Admin)]
 		[HttpGet("book-borrowingrequest")]
 		public async Task<IActionResult> GetRequestByUserId()
 		{
@@ -135,18 +141,17 @@ namespace Book.API.Controllers
 			}
 			if (userId != null)
 			{
-				var user = await _usersService.GetUserByIdAsync(userId.UserId);
-				if (user != null)
+				var result = await _bookService.GetRequestByUserId(userId.UserId);
+				if (result != null)
 				{
-					var bookBorrowingRequest = await _bookService.GetRequestByUserId(user);
-
-					return bookBorrowingRequest != null ? Ok(bookBorrowingRequest) : BadRequest();
+					return Ok(result);
 				}
 				else
 					return BadRequest();
 			}
 			else
 				return BadRequest();
+			
 		}
 	}
 }

@@ -20,14 +20,16 @@
 		<tr>
 			<th>
 				@Html.DisplayNameFor(model => model.Books[0].BookName)
-				<input type="text" name="Title" placeholder="Input book's name" id="title" />
+				<input type="text" name="Title" placeholder="Input book's name" id="searchtext" />
 				<button type="button" onclick="onSearch()">Search</button>
 			</th>
 			<th>
-				@Html.DisplayNameFor(model => model.Books[0].PublishedDate)
+				<a>PublishedDate</a>
+				<a href="#" onclick="onSortDes()">Des</a>
+				<a href="#" onclick="onSortAsc()">Asc</a>
 			</th>
 			<th>
-				@Html.DisplayNameFor(model => model.Books[0].PublisherName)
+				publisherName
 			</th>
 			<th>
 				CategoryName
@@ -45,6 +47,46 @@
 </table>
 <script type="text/javascript">
 	$(document).ready(function () {
+		$('#searchtext').on('keyup', function () {
+			var searchtext = $('#searchtext').val();
+			var jwt = Cookies.get('jwt');
+			$("table tbody").html("");
+			$.ajax({
+				url: "https://localhost:7233/api/book-management/books?$filter=contains(tolower(bookName)," + "'" + searchtext.toLowerCase() + "')",
+				type: "GET",
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+				},
+				success: function (result, status, xhr) {
+					$.each(result, function (index, value) {
+						var appendElement = $("<tr>");
+						appendElement.append($("<td>").html(value["bookName"]));
+						var publishedDate = moment(value["publishedDate"]).format("DD/MM/YYYY");
+						if (moment(publishedDate, "DD/MM/YYYY", true).isValid()) {
+							appendElement.append($("<td>").html(publishedDate));
+						} else {
+							appendElement.append($("<td>").html("Invalid date"));
+						}
+						appendElement.append($("<td>").html(value["publisherName"]));
+						appendElement.append($("<td>").html(value["categoryName"]));
+						appendElement.append($("<td>").html("<a href=\"Book/Edit?id=" + value["bookId"] + "\">Edit</a>"));
+						appendElement.append($("<td>").html("<a href=\"Book/Delete?id=" + value["bookId"] + "\">Delete</a>"));
+						$("table tbody").append(appendElement);
+					});
+					
+				},
+				error: function (xhr, status, error) {
+					if (xhr.status == 401) {
+						alert("You need to login first")
+						window.location.href = "https://localhost:7115/Login";
+					} else if (xhr.status == 403) {
+						window.location.href = "https://localhost:7115/Error";
+					}
+				}
+			});
+		});
 		LoadData();
 	});
 
@@ -96,6 +138,90 @@
 		$("table tbody").html("");
 		$.ajax({
 			url: "https://localhost:7233/api/book-management/books?$filter=contains(bookName," + "'" + title + "')",
+			type: "GET",
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+			},
+			success: function (result, status, xhr) {
+				$("table tbody").html("");
+				$.each(result, function (index, value) {
+					var appendElement = $("<tr>");
+					appendElement.append($("<td>").html(value["bookName"]));
+					var publishedDate = moment(value["publishedDate"]).format("DD/MM/YYYY");
+					if (moment(publishedDate, "DD/MM/YYYY", true).isValid()) {
+						appendElement.append($("<td>").html(publishedDate));
+					} else {
+						appendElement.append($("<td>").html("Invalid date"));
+					}
+					appendElement.append($("<td>").html(value["publisherName"]));
+					appendElement.append($("<td>").html(value["categoryName"]));
+					appendElement.append($("<td>").html("<a href=\"Book/Edit?id=" + value["bookId"] + "\">Edit</a>"));
+					appendElement.append($("<td>").html("<a href=\"Book/Delete?id=" + value["bookId"] + "\">Delete</a>"));
+					$("table tbody").append(appendElement);
+				});
+			},
+			error: function (xhr, status, error) {
+				if (xhr.status == 401) {
+					window.location.href = "https://localhost:7115/Login";
+				} else if (xhr.status == 403) {
+					window.location.href = "https://localhost:7115/Error";
+				}
+			}
+		});
+		return false;
+	}
+
+	function onSortDes() {
+		var title = $('#title').val();
+		var jwt = Cookies.get('jwt');
+
+		$("table tbody").html("");
+		$.ajax({
+			url: "https://localhost:7233/api/book-management/books?$orderby=publishedDate" + " desc",
+			type: "GET",
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+			},
+			success: function (result, status, xhr) {
+				$("table tbody").html("");
+				$.each(result, function (index, value) {
+					var appendElement = $("<tr>");
+					appendElement.append($("<td>").html(value["bookName"]));
+					var publishedDate = moment(value["publishedDate"]).format("DD/MM/YYYY");
+					if (moment(publishedDate, "DD/MM/YYYY", true).isValid()) {
+						appendElement.append($("<td>").html(publishedDate));
+					} else {
+						appendElement.append($("<td>").html("Invalid date"));
+					}
+					appendElement.append($("<td>").html(value["publisherName"]));
+					appendElement.append($("<td>").html(value["categoryName"]));
+					appendElement.append($("<td>").html("<a href=\"Book/Edit?id=" + value["bookId"] + "\">Edit</a>"));
+					appendElement.append($("<td>").html("<a href=\"Book/Delete?id=" + value["bookId"] + "\">Delete</a>"));
+					$("table tbody").append(appendElement);
+				});
+			},
+			error: function (xhr, status, error) {
+				if (xhr.status == 401) {
+					window.location.href = "https://localhost:7115/Login";
+				} else if (xhr.status == 403) {
+					window.location.href = "https://localhost:7115/Error";
+				}
+			}
+		});
+		return false;
+	}
+
+	function onSortAsc() {
+		var title = $('#title').val();
+		var jwt = Cookies.get('jwt');
+
+		$("table tbody").html("");
+		$.ajax({
+			url: "https://localhost:7233/api/book-management/books?$orderby=publishedDate" + " asc",
 			type: "GET",
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",

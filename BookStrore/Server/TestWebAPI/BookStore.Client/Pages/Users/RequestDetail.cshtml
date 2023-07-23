@@ -1,0 +1,74 @@
+﻿@page
+@model BookStore.Client.Pages.Users.RequestDetailModel
+
+@{
+    ViewData["Title"] = "RequestDetail";
+}
+
+<h1>RequestDetail</h1>
+
+<head>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.0/dist/js.cookie.min.js"></script>
+
+</head>
+<h1>Details</h1>
+<h4>Request Detail</h4>
+<hr />
+<div>
+	<table class="table">
+		<thead>
+			<input type="hidden" asp-for="BookBorrowingRequest.BookBorrowingRequestId" id="id" />
+			<tr>
+				<th>
+					Book Name
+				</th>
+				<th>
+					BookBorrowingRequestId
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
+<div>
+	<a href="https://localhost:7115/BookBorrowing">Back to List</a>
+</div>
+<script type="text/javascript">
+	$(document).ready(function () {
+		LoadData();
+	});
+
+	function LoadData() {
+		var id = $('#id').val();
+		var jwt = Cookies.get('jwt');
+		$("table tbody").html("");
+		$.ajax({
+			url: "https://localhost:7233/api/book-management/book-borrowingdetail/" + id,
+			type: "GET",
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader('Authorization', 'Bearer ' + jwt);
+			},
+			success: function (result, status, xhr) {
+				$.each(result, function (index, value) {
+					var appendElement = $("<tr>");
+					appendElement.append($("<td>").html(value["bookName"]));
+					appendElement.append($("<td>").html(value["bookBorrowingRequestId"]));
+					$("table tbody").append(appendElement);
+				});
+			},
+			error: function (xhr, status, error) {
+				if (xhr.status == 401) {
+					alert("You need to login first")
+					window.location.href = "https://localhost:7115/Login";
+				} else if (xhr.status == 403) {
+					window.location.href = "https://localhost:7115/Error";
+				}
+			}
+		});
+	}
+</script>
